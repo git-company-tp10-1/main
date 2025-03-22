@@ -14,4 +14,5 @@
 #
 Ссылки:
 1. [YouTrack](https://owl336.youtrack.cloud/projects/0-1)
+2. [Figma](https://www.figma.com/design/SWUm7SQiNYI8nzSHZUayrO/Untitled?node-id=22-83&p=f&t=xfIpDIbtyEXg1m1B-0)
 
