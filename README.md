@@ -4,9 +4,9 @@
 1. [Середа Даниил](https://vk.com/forest_owl336) [(Git)](https://github.com/owl336) - Team Lead, Backend-разработчик
 2. [Илюнов Сергей](https://vk.com/id729366535) [(Git)](https://github.com/SergeyAFD) - Бизнес-аналитик
 3. [Долгушина Анна](https://vk.com/dolgushina_a) [(Git)](https://github.com/Ann2009Dol) - Дизайнер
-4. [Кузнецов Александр](https://vk.com/mega_cutetoad) [(Git)](https://github.com/AlexandrGoncharenko)- Lead Frontend-разработчик
+4. [Кузнецов Александр](https://vk.com/mega_cutetoad) - Lead Frontend-разработчик
 5. [Белозёров Ярослав](https://vk.com/fasreder) - Frontend-разработчик
-6. [Гончаренко Александр](https://vk.com/tvvoistraxxx) - Project Manager / Product Owner
+6. [Гончаренко Александр](https://vk.com/tvvoistraxxx) [(Git)](https://github.com/AlexandrGoncharenko)- Project Manager / Product Owner
 
  # 
  ТЕМА:<br>
