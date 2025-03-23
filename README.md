@@ -1,5 +1,5 @@
 # (НАЗВАНИЕ)
-# ТП 10-1
+# ТП 10-3
 СТУДЕНТЫ:
 1. [Середа Даниил](https://vk.com/forest_owl336) [(Git)](https://github.com/owl336) - Team Lead, Backend-разработчик
 2. [Илюнов Сергей](https://vk.com/id729366535) [(Git)](https://github.com/SergeyAFD) - Бизнес-аналитик
