@@ -1,4 +1,4 @@
-# (НАЗВАНИЕ)
+# YOURDAY
 # ТП 10-3
 СТУДЕНТЫ:
 1. [Середа Даниил](https://vk.com/forest_owl336) [(Git)](https://github.com/owl336) - Team Lead, Backend-разработчик
