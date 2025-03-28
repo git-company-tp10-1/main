@@ -12,7 +12,19 @@
  ТЕМА:<br>
  Инструмент, который анализирует, как пользователь проводит день, и предлагает пути для повышения продуктивности.
 #
-Ссылки:
+Ссылки на сервисы:
 1. [YouTrack](https://owl336.youtrack.cloud/projects/0-1)
 2. [Figma](https://www.figma.com/design/SWUm7SQiNYI8nzSHZUayrO/Untitled?node-id=22-83&p=f&t=xfIpDIbtyEXg1m1B-0)
+
+#
+Ссылки на документацию:
+1. [ТЗ](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Техническое%20задание(черновик).docx)
+2. [презентация ТЗ в пдф](https://github.com/git-company-tp10-1/main/blob/main/Documentation/презинтация%20ТЗ.pdf)
+3. 
+
+
+#
+Ссылки на видео:
+1. [Видео с презентацией ТЗ](https://rutube.ru/video/06b595e771d685a977f3aaa0610ee305/)
+
 
