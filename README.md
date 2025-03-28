@@ -18,7 +18,7 @@
 
 #
 Ссылки на документацию:
-1. [ТЗ](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Техническое%20задание(черновик).docx)
+1. [ТЗ (ссылка пока не работает](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Техническое%20задание(черновик).docx)
 2. [презентация ТЗ в пдф](https://github.com/git-company-tp10-1/main/blob/main/Documentation/презинтация%20ТЗ.pdf)
 3. 
 
