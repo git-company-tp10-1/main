@@ -1,0 +1,319 @@
+openapi: 3.0.0
+info:
+  title: YourDay
+  version: 1.0.0
+  description: API для отслеживания активности, анализа данных и постановки целей(в том числе и ИИ)
+
+servers:
+  - url: http://localhost:8080
+
+paths:
+ 
+  /register:
+    post:
+      summary: Регистрация пользователя
+      description: Регистрирует нового пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                name:
+                  type: string
+      responses:
+        '201':
+          description: Пользователь успешно зарегистрирован
+
+  /login:
+    post:
+      summary: Авторизация пользователя
+      description: Авторизует пользователя с использованием email и пароля
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Успешная авторизация
+
+  /profile:
+    get:
+      summary: Получение профиля пользователя
+      description: Возвращает информацию о текущем пользователе
+      responses:
+        '200':
+          description: Информация о пользователе успешно получена
+
+    patch:
+      summary: Обновление профиля пользователя
+      description: Обновляет данные пользователя (имя, премиум-статус)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                is_premium:
+                  type: boolean
+      responses:
+        '200':
+          description: Профиль пользователя успешно обновлён
+
+  /profile/password:
+    patch:
+      summary: Изменение пароля
+      description: Изменяет пароль пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                current_password:
+                  type: string
+                new_password:
+                  type: string
+      responses:
+        '200':
+          description: Пароль успешно обновлён
+
+  /activity/apps:
+    get:
+      summary: Получение статистики по приложениям
+      description: Возвращает данные об использовании приложений
+      responses:
+        '200':
+          description: Статистика успешно получена
+
+  /activity/steps:
+    get:
+      summary: Получение статистики по шагам
+      description: Возвращает данные о физической активности пользователя
+      responses:
+        '200':
+          description: Статистика успешно получена
+
+  /notes:
+    post:
+      summary: Создание заметки
+      description: Добавляет новую заметку
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+      responses:
+        '201':
+          description: Заметка успешно создана
+
+  /notes/{id}:
+    get:
+      summary: Получение заметки
+      description: Возвращает данные о заметке по ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Заметка успешно получена
+
+    delete:
+      summary: Удаление заметки
+      description: Удаляет заметку по ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Заметка успешно удалена
+
+  /goals:
+    post:
+      summary: Создание цели
+      description: Добавляет новую цель для пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+      responses:
+        '201':
+          description: Цель успешно создана
+
+  /goals/{id}:
+    get:
+      summary: Получение цели
+      description: Возвращает данные о цели по ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Цель успешно получена
+
+    patch:
+      summary: Обновление цели
+      description: Обновляет данные о цели по ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                status:
+                  type: string
+      responses:
+        '200':
+          description: Цель успешно обновлена
+
+    delete:
+      summary: Удаление цели
+      description: Удаляет цель по ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Цель успешно удалена
+
+  /neural/recommendations:
+    post:
+      summary: Отправка статистики и получение рекомендаций
+      description: Отправляет данные нейронной сети (приложения, шаги, заметки) за день и получает цели.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                  description: ID пользователя
+                date:
+                  type: string
+                  format: date
+                  description: Дата за которую отправляется статистика
+                apps:
+                  type: array
+                  description: Статистика приложений
+                  items:
+                    type: object
+                    properties:
+                      packageName:
+                        type: string
+                      appName:
+                        type: string
+                      usageTimeMillis:
+                        type: integer
+                        format: int64
+                      usageDate:
+                        type: string
+                        format: date-time
+                steps:
+                  type: array
+                  description: Статистика шагов
+                  items:
+                    type: object
+                    properties:
+                      stepCount:
+                        type: integer
+                      usageDate:
+                        type: string
+                        format: date
+                notes:
+                  type: array
+                  description: Заметки пользователя
+                  items:
+                    type: object
+                    properties:
+                      content:
+                        type: string
+                      createdAt:
+                        type: string
+                        format: date-time
+      responses:
+        '200':
+          description: Рекомендации успешно получены
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  recommendations:
+                    type: array
+                    description: Список целей, предложенных ИИ
+                    items:
+                      type: object
+                      properties:
+                        goal:
+                          type: string
+                        description:
+                          type: string
+  
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        is_premium:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
