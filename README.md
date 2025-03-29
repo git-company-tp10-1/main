@@ -22,6 +22,8 @@
 2. [презентация ТЗ в пдф](https://github.com/git-company-tp10-1/main/blob/main/Documentation/презинтация%20ТЗ.pdf)
 3. [Предпроектное исследование в пдф](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Predproektnoe_issledovanie.pdf)
 4. [Брендбук](https://www.figma.com/design/SWUm7SQiNYI8nzSHZUayrO/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82?node-id=124-2)
+5. [Схема API]([Uploading openapi.yaml…]()
+)
 
 
 #
