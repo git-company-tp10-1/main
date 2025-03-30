@@ -49,6 +49,7 @@ Frontend:
 4. [Брендбук](https://www.figma.com/design/SWUm7SQiNYI8nzSHZUayrO/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82?node-id=124-2)
 5. [Схема API](https://gist.githubusercontent.com/owl336/95c88da75749ac60e305bc8e2d762f8d/raw/ed8e1208c6a49f7760968002c5509d11b01602cd/swagger.yaml)
 6. [ER, UML и Use Case диаграммы](https://github.com/git-company-tp10-1/main/tree/main/Documentation/charts)
+7. [Пользоватские сценарии](https://miro.com/app/board/uXjVIM5DcKg=/?share_link_id=267269145843)
 
 
 #
