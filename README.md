@@ -39,8 +39,7 @@ Frontend:
 3. [Figma (Макеты)](https://www.figma.com/design/SWUm7SQiNYI8nzSHZUayrO/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82?node-id=80-446&t=XtiPpbo1CJyWpS4W-1)
 4. [Miro](https://miro.com/app/board/uXjVIM5DcKg=/?share_link_id=15169591408)
 
-   YouTrack работает только с включенным VPN
-
+YouTrack работает только с включенным VPN
 #
 ДОКУМЕНТАЦИЯ:<br>
 1. [ТЗ (ссылка пока не работает](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Техническое%20задание(черновик2).docx)
