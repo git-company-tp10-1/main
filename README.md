@@ -33,6 +33,18 @@ Frontend:
    
 Искусственный интеллект:
  * Qwen QwQ 32B (free).
+
+
+#
+ЧЕК-ЛИСТЫ:<br>
+
+[Наш чек-лист](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Чеклист%201%20этап.pdf)
+
+Кто нас проверял?
+1) 10 группа 4 команда [Git чек-лист]()
+2) 10 группа 1 команда [Git чек-лист]()
+3) 9 группа 3 команда [Git чек-лист]()
+4) 3 группа 4 команда [Git чек-лист]()
 #
 Ссылки на сервисы:
 1. [YouTrack](https://owl336.youtrack.cloud/projects/0-1)
@@ -42,14 +54,12 @@ Frontend:
 YouTrack работает только с включенным VPN
 #
 ДОКУМЕНТАЦИЯ:<br>
-1. [Техническое задание в пдф](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Техническое%20задание%20(1).pdf)
-2. [Техническое задание в docx](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Техническое%20задание%20(1).docx)
-3. [Презентация ТЗ в пдф](https://github.com/git-company-tp10-1/main/blob/main/Documentation/презентация%20ТЗ.pdf)
-4. [Предпроектное исследование в пдф](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Predproektnoe_issledovanie.pdf)
-5. [Схема API](https://gist.githubusercontent.com/owl336/95c88da75749ac60e305bc8e2d762f8d/raw/ed8e1208c6a49f7760968002c5509d11b01602cd/swagger.yaml)
-6. [ER и UML диаграммы](https://github.com/git-company-tp10-1/main/tree/main/Documentation/charts)
-7. [UML диаграммы на Miro](https://miro.com/app/board/uXjVIJDT77E=/?share_link_id=931326801804)
-8. [Пользоватские сценарии](https://miro.com/app/board/uXjVIM5DcKg=/?share_link_id=267269145843)
+1. Техническое задание [(PDF)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Техническое%20задание%20(1).pdf) [(DOCX)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Техническое%20задание%20(1).docx)
+2. Предпроектное исследование  [(PDF)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Predproektnoe_issledovanie.pdf) [(DOCX)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Predproektnoe_issledovanie.docx)
+3. [Схема API](https://gist.githubusercontent.com/owl336/95c88da75749ac60e305bc8e2d762f8d/raw/ed8e1208c6a49f7760968002c5509d11b01602cd/swagger.yaml)
+4. [ER и UML диаграммы](https://github.com/git-company-tp10-1/main/tree/main/Documentation/charts)
+5. [UML диаграммы на Miro](https://miro.com/app/board/uXjVIJDT77E=/?share_link_id=931326801804)
+6. [Пользоватские сценарии](https://miro.com/app/board/uXjVIM5DcKg=/?share_link_id=267269145843)
 
 
 #
