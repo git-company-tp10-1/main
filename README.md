@@ -43,7 +43,7 @@ Frontend:
 Кто нас проверял?
 1) 10 группа 4 команда [Git чек-лист]()
 2) 10 группа 1 команда [Git чек-лист]()
-3) 9 группа 3 команда [Git чек-лист]()
+3) 9 группа 3 команда [Git чек-лист](https://github.com/slash0t/travel-planner/blob/main/documentation/Чеклист%20оценивания.pdf)
 4) 3 группа 4 команда [Git чек-лист](https://vk.com/away.php?to=https%3A%2F%2Fgithub.com%2Fuyrtryu%2FMindCard%2Fblob%2Fmain%2FDocumentation%2Fchecklist1atta.pdf&utf=1)
 #
 Ссылки на сервисы:
