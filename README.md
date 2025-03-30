@@ -42,13 +42,14 @@ Frontend:
 YouTrack работает только с включенным VPN
 #
 ДОКУМЕНТАЦИЯ:<br>
-1. [ТЗ (ссылка пока не работает](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Техническое%20задание(черновик2).docx)
-2. [презентация ТЗ в пдф](https://github.com/git-company-tp10-1/main/blob/main/Documentation/презинтация%20ТЗ.pdf)
-3. [Предпроектное исследование в пдф](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Predproektnoe_issledovanie.pdf)
-4. [Брендбук](https://www.figma.com/design/SWUm7SQiNYI8nzSHZUayrO/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82?node-id=124-2)
-5. [Схема API](https://gist.githubusercontent.com/owl336/95c88da75749ac60e305bc8e2d762f8d/raw/ed8e1208c6a49f7760968002c5509d11b01602cd/swagger.yaml)
-6. [ER, UML и Use Case диаграммы](https://github.com/git-company-tp10-1/main/tree/main/Documentation/charts)
-7. [Пользоватские сценарии](https://miro.com/app/board/uXjVIM5DcKg=/?share_link_id=267269145843)
+1. [Техническое задание в пдф](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Техническое%20задание.pdf)
+2. [Техническое задание в docx](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Техническое%20задание.docx)
+3. [презентация ТЗ в пдф](https://github.com/git-company-tp10-1/main/blob/main/Documentation/презинтация%20ТЗ.pdf)
+4. [Предпроектное исследование в пдф](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Predproektnoe_issledovanie.pdf)
+5. [Брендбук](https://www.figma.com/design/SWUm7SQiNYI8nzSHZUayrO/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82?node-id=124-2)
+6. [Схема API](https://gist.githubusercontent.com/owl336/95c88da75749ac60e305bc8e2d762f8d/raw/ed8e1208c6a49f7760968002c5509d11b01602cd/swagger.yaml)
+7. [ER, UML и Use Case диаграммы](https://github.com/git-company-tp10-1/main/tree/main/Documentation/charts)
+8. [Пользоватские сценарии](https://miro.com/app/board/uXjVIM5DcKg=/?share_link_id=267269145843)
 
 
 #
