@@ -44,7 +44,7 @@ YouTrack работает только с включенным VPN
 ДОКУМЕНТАЦИЯ:<br>
 1. [Техническое задание в пдф](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Техническое%20задание.pdf)
 2. [Техническое задание в docx](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Техническое%20задание.docx)
-3. [презентация ТЗ в пдф](https://github.com/git-company-tp10-1/main/blob/main/Documentation/презинтация%20ТЗ.pdf)
+3. [Презентация ТЗ в пдф](https://github.com/git-company-tp10-1/main/blob/main/Documentation/презинтация%20ТЗ.pdf)
 4. [Предпроектное исследование в пдф](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Predproektnoe_issledovanie.pdf)
 5. [Брендбук](https://www.figma.com/design/SWUm7SQiNYI8nzSHZUayrO/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82?node-id=124-2)
 6. [Схема API](https://gist.githubusercontent.com/owl336/95c88da75749ac60e305bc8e2d762f8d/raw/ed8e1208c6a49f7760968002c5509d11b01602cd/swagger.yaml)
