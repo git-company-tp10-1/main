@@ -60,6 +60,7 @@ YouTrack работает только с включенным VPN
 4. [ER и UML диаграммы](https://github.com/git-company-tp10-1/main/tree/main/Documentation/charts)
 5. [UML диаграммы на Miro](https://miro.com/app/board/uXjVIJDT77E=/?share_link_id=931326801804)
 6. [Пользоватские сценарии](https://miro.com/app/board/uXjVIM5DcKg=/?share_link_id=267269145843)
+7. Презентация ТЗ [PDF](https://github.com/git-company-tp10-1/main/blob/main/Documentation/презентация%20ТЗ.pdf)  [PPTX](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Презентация%20ТЗ%20.pptx)
 
 
 #
