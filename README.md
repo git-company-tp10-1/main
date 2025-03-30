@@ -37,6 +37,7 @@ Frontend:
 Ссылки на сервисы:
 1. [YouTrack](https://owl336.youtrack.cloud/projects/0-1)
 3. [Figma (Макеты)](https://www.figma.com/design/SWUm7SQiNYI8nzSHZUayrO/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82?node-id=80-446&t=XtiPpbo1CJyWpS4W-1)
+4. [Miro](https://miro.com/app/board/uXjVIM5DcKg=/?share_link_id=15169591408)
 
 #
 ДОКУМЕНТАЦИЯ:<br>
