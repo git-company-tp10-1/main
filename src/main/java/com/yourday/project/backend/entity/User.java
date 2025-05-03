@@ -1,5 +1,8 @@
 package com.yourday.project.backend.entity;
 import jakarta.persistence.*;
+import org.hibernate.annotations.GenericGenerator;
+
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 
@@ -7,36 +10,52 @@ import java.util.UUID;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    @GeneratedValue(generator = "uuid")
+    @GenericGenerator(name = "uuid", strategy = "uuid2")
+    @Column(columnDefinition = "CHAR(36)", updatable = false, nullable = false)
+    private String id;
+
+    @Column(nullable = false)
+    private String name;
 
     @Column(nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false)
-    private String name;
-
-    @Column(nullable = false)
     private String password;
 
-    private boolean isPremium;
+    private boolean is_premium;
+
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime created_at;
+
+
+    @Column(name = "updated_at")
+    private LocalDateTime updated_at;
+
+
+
+
 
     public User(UUID id, String email, String name, String password, boolean isPremium) {
-        this.id = id;
-        this.email = email;
+        this.id = String.valueOf(id);
         this.name = name;
+        this.email = email;
         this.password = password;
-        this.isPremium = isPremium;
+        this.is_premium = isPremium;
+        this.created_at = LocalDateTime.now();
+        this.updated_at = LocalDateTime.now();
     }
 
     public User() {}
 
     public UUID getId() {
-        return id;
+        return id != null ? UUID.fromString(id) : null;
     }
 
-    public void setId(UUID id) {
-        this.id = id;
+    // И метод для установки UUID
+    public void setId(UUID uuid) {
+        this.id = uuid != null ? uuid.toString() : null;
     }
 
     public String getEmail() {
@@ -64,10 +83,40 @@ public class User {
     }
 
     public boolean isPremium() {
-        return isPremium;
+        return is_premium;
     }
 
     public void setPremium(boolean premium) {
-        isPremium = premium;
+        is_premium = premium;
     }
+
+    public LocalDateTime getCreated_at() {
+        return created_at;
+    }
+
+    public void setCreated_at(LocalDateTime createdAt) {
+        this.created_at = createdAt;
+    }
+
+    public LocalDateTime getUpdated_at() {
+        return updated_at;
+    }
+
+    public void setUpdated_at(LocalDateTime updatedAt) {
+        this.updated_at = updatedAt;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.created_at = LocalDateTime.now();
+        this.updated_at = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updated_at = LocalDateTime.now();
+    }
+
+
+
 }

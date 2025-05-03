@@ -3,6 +3,12 @@ package com.yourday.project.backend.interfase;
 import com.yourday.project.backend.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface UserRepository  extends JpaRepository<User, Long> {
+import java.util.Optional;
+import java.util.UUID;
 
+public interface UserRepository  extends JpaRepository<User, UUID> {
+    Optional<User> findByEmail(String email);
+
+    @Override
+    Optional<User> findById(UUID uuid);
 }
