@@ -53,7 +53,7 @@ public class User {
         return id != null ? UUID.fromString(id) : null;
     }
 
-    // И метод для установки UUID
+
     public void setId(UUID uuid) {
         this.id = uuid != null ? uuid.toString() : null;
     }
