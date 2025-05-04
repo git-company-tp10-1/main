@@ -2,13 +2,16 @@ package com.yourday.project.backend.controller;
 
 
 
+import com.yourday.project.backend.entity.Notes;
 import com.yourday.project.backend.entity.User;
 import com.yourday.project.backend.service.RegistrationService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -22,7 +25,7 @@ public class RegistrationController {
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@RequestBody User user) {
         try {
-            user.setId(UUID.randomUUID());
+
             regService.registerUser(user);
 
 
@@ -44,22 +47,21 @@ public class RegistrationController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody User user) {
+    public ResponseEntity<?> loginUser(@RequestBody User user, HttpSession session) {
         try {
             User loggedInUser = regService.loginUser(user);
 
-            // Можно возвращать только ограниченные данные (например, имя и email)
-            return ResponseEntity.ok(Map.of(
-                    "id", loggedInUser.getId(),
-                    "email", loggedInUser.getEmail(),
-                    "name", loggedInUser.getName(),
-                    "isPremium", loggedInUser.isPremium()
-            ));
+            session.setAttribute("userId", loggedInUser.getId());
+            session.setAttribute("userName", loggedInUser.getName());
+
+            return ResponseEntity.ok("Logged in successfully");
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
         }
     }
+
+
 
 }

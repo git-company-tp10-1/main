@@ -1,12 +1,14 @@
 package com.yourday.project.backend.service;
 
 import com.yourday.project.backend.entity.User;
+
 import com.yourday.project.backend.interfase.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+
 import java.util.Optional;
 
 @Service
@@ -55,4 +57,6 @@ public class RegistrationService {
 
         return existingUser;
     }
+
+
 }
