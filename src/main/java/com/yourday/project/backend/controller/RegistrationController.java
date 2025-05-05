@@ -23,18 +23,15 @@ public class RegistrationController {
     private RegistrationService regService;
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody User user) {
+    public ResponseEntity<String> registerUser(@RequestBody User user, HttpSession session) {
         try {
 
             regService.registerUser(user);
 
-
-
             return ResponseEntity
                     .status(HttpStatus.CREATED)
-                    .body("User registered successfully with ID: " + user.getId());
+                    .body("User registered successfully");
         } catch (IllegalArgumentException e) {
-            // Возвращаем ошибку с описанием проблемы
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
