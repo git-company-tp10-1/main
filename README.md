@@ -62,6 +62,7 @@ YouTrack работает только с включенным VPN
 6. [Пользоватские сценарии](https://miro.com/app/board/uXjVIM5DcKg=/?share_link_id=267269145843)
 7. Презентация ТЗ [PDF](https://github.com/git-company-tp10-1/main/blob/main/Documentation/презентация%20ТЗ.pdf)  [PPTX](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Презентация%20ТЗ%20.pptx)
 8. Презентация 2 этапа [PDF](https://github.com/git-company-tp10-1/main/blob/main/Documentation/презентация%20статуса%20проекта.pdf)  [PPTX](https://github.com/git-company-tp10-1/main/blob/main/Documentation/презентация%20статуса%20проекта.pptx)
+9. PM отчёт [(PDF)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/pm_otchet.pdf) [(DOCX)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/pm_otchet.docx)
 
 
 #
