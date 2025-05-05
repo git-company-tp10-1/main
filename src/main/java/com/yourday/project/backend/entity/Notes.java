@@ -24,11 +24,11 @@ public class Notes {
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false, nullable = false)
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+    private LocalDateTime updatedAt = LocalDateTime.now();
 
     // Конструкторы
     public Notes() {

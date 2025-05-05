@@ -26,16 +26,16 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Отключаем CSRF для тестов
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/get", "/auth/register", "/auth/login").permitAll() // Разрешаем публичные эндпоинты
-                        .anyRequest().authenticated() // Все остальные требуют авторизации
+                        .requestMatchers("/api/get", "/auth/register", "/auth/login").permitAll()
+                        .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.ALWAYS) // Создавать сессии для авторизованных пользователей
+                        .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
                 )
                 .exceptionHandling(exp -> exp
-                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)) // Возвращаем 401 для неавторизованных
+                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
                 );
 
         return http.build();
