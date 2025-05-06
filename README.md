@@ -38,7 +38,7 @@ Frontend:
 #
 ЧЕК-ЛИСТЫ:<br>
 
-[Наш наш первый чек-лист](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Чеклист%201%20этап.pdf)
+[Наш наш первый чек-лист](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Чеклист%201%20этап.pdf)<br>
 [Наш наш второй чек-лист](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Чеклист%202%20этап.pdf)
 
 
