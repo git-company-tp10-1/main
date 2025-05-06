@@ -38,14 +38,17 @@ Frontend:
 #
 ЧЕК-ЛИСТЫ:<br>
 
-[Наш чек-лист](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Чеклист%201%20этап.pdf)
+[Наш наш первый чек-лист](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Чеклист%201%20этап.pdf)
+[Наш наш второй чек-лист](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Чеклист%202%20этап.pdf)
+
 
 Кто нас проверял?
-1) 10 группа 4 команда [Git чек-лист](https://github.com/LUFFPUFF/TPProduct/blob/main/Чеклист%201%20этап%20-%20чеклист.pdf)
-2) 10 группа 1 команда [Git чек-лист](https://github.com/Storix2025/Storix/blob/main/Documentation/чек-лист/ВГУ-ТП.%20Чеклист%201%20этап.pdf)
-3) 9 группа 3 команда [Git чек-лист](https://github.com/slash0t/travel-planner/blob/main/documentation/Чеклист%20оценивания.pdf)
-4) 3 группа 4 команда [Git чек-лист](https://vk.com/away.php?to=https%3A%2F%2Fgithub.com%2Fuyrtryu%2FMindCard%2Fblob%2Fmain%2FDocumentation%2Fchecklist1atta.pdf&utf=1)
+1) 10 группа 4 команда [Git](https://github.com/LUFFPUFF/TPProduct/blob/main)
+2) 10 группа 1 команда [Git](https://github.com/Storix2025/Storix/blob/main)
+3) 9 группа 3 команда [Git](https://github.com/slash0t/travel-planner/blob/main)
+4) 3 группа 4 команда [Git](https://github.com/uyrtryu/MindCard)
 #
+
 Ссылки на сервисы:
 1. [YouTrack](https://owl336.youtrack.cloud/projects/0-1)
 3. [Figma (Макеты)](https://www.figma.com/design/SWUm7SQiNYI8nzSHZUayrO/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82?node-id=80-446&t=XtiPpbo1CJyWpS4W-1)
