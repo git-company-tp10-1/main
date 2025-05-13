@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project/screens/registration.dart';
 import 'screens/statistics.dart'; // Импортируем экран статистики
 import 'screens/profile.dart';
 
