@@ -1,40 +1,144 @@
 import 'package:flutter/material.dart';
-import 'dart:math'; // для расчётов в круговой диаграмме
+import 'dart:math';
 
-// Точка входа в приложение
-void main() => runApp(const StatisticsApp());
-
-// Главный StatelessWidget приложения
 class StatisticsApp extends StatelessWidget {
   const StatisticsApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false, // отключает надпись "debug"
-      theme: _buildAppTheme(), // тема приложения
-      home: const StatisticsScreen(), // основной экран
+      debugShowCheckedModeBanner: false,
+      theme: _buildAppTheme(),
+      home: const MainScreen(),
     );
   }
 
   ThemeData _buildAppTheme() {
     return ThemeData.light().copyWith(
-      scaffoldBackgroundColor: const Color(0xFFF0F0F0), // фоновый цвет
+      scaffoldBackgroundColor: const Color(0xFFF0F0F0),
     );
   }
 }
 
-// Stateful экран со статистикой
-class StatisticsScreen extends StatefulWidget {
-  const StatisticsScreen({super.key});
+class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
 
   @override
-  State<StatisticsScreen> createState() => _StatisticsScreenState();
+  State<MainScreen> createState() => _MainScreenState();
 }
 
-class _StatisticsScreenState extends State<StatisticsScreen>
+class _MainScreenState extends State<MainScreen> {
+  int _selectedIndex = 2;
+
+  final List<Widget> _screens = [
+    const GoalsScreen(),
+    const NotebookScreen(),
+    const StatisticsContent(), // Изменили на StatisticsContent без Scaffold
+    const ProfileScreen(),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: _screens[_selectedIndex],
+      bottomNavigationBar: _buildNavigationBar(),
+    );
+  }
+
+  Widget _buildNavigationBar() {
+    const navItems = [
+      {'icon': Icons.flag, 'label': 'Цели'},
+      {'icon': Icons.book, 'label': 'Блокнот'},
+      {'icon': Icons.bar_chart, 'label': 'Статистика'},
+      {'icon': Icons.person, 'label': 'Профиль'},
+    ];
+
+    return Container(
+      height: 70,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 8,
+            offset: Offset(0, -2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: navItems.asMap().entries.map((entry) {
+          final index = entry.key;
+          final item = entry.value;
+          final isSelected = index == _selectedIndex;
+
+          return GestureDetector(
+            onTap: () => setState(() => _selectedIndex = index),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  item['icon'] as IconData,
+                  size: 24,
+                  color: isSelected ? Colors.green : Colors.black,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  item['label'] as String,
+                  style: TextStyle(
+                    color: isSelected ? Colors.green : Colors.black,
+                    fontSize: 13,
+                    fontFamily: 'Crimson Text',
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+}
+
+// Заглушки для других экранов
+class GoalsScreen extends StatelessWidget {
+  const GoalsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(child: Text('Экран целей'));
+  }
+}
+
+class NotebookScreen extends StatelessWidget {
+  const NotebookScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(child: Text('Экран блокнота'));
+  }
+}
+
+class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(child: Text('Экран профиля'));
+  }
+}
+
+// Измененный StatisticsScreen без Scaffold
+class StatisticsContent extends StatefulWidget {
+  const StatisticsContent({super.key});
+
+  @override
+  State<StatisticsContent> createState() => _StatisticsContentState();
+}
+
+class _StatisticsContentState extends State<StatisticsContent>
     with TickerProviderStateMixin {
-  // Данные по шагам на неделю
   final Map<String, DayData> weekData = {
     'ПН': DayData(steps: 1200, date: '19'),
     'ВТ': DayData(steps: 5800, date: '20'),
@@ -45,13 +149,11 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     'ВС': DayData(steps: 5063, date: '25'),
   };
 
-  // текущие переменные состояния
   late String selectedDay;
   late int currentSteps;
   late double progress;
-  final int targetSteps = 7500; // целевая цель шагов
+  final int targetSteps = 7500;
 
-  // Анимации
   late AnimationController _progressController;
   late Animation<double> _progressAnimation;
   late AnimationController _dayChangeController;
@@ -61,24 +163,20 @@ class _StatisticsScreenState extends State<StatisticsScreen>
   @override
   void initState() {
     super.initState();
-
-    selectedDay = 'ВС'; // день по умолчанию
+    selectedDay = 'ВС';
     currentSteps = weekData[selectedDay]!.steps;
     progress = currentSteps / targetSteps;
 
-    // Контроллер прогресса
     _progressController = AnimationController(
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
 
-    // Контроллер смены дня
     _dayChangeController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
 
-    // Анимация изменения прогресса
     _progressAnimation = Tween<double>(begin: 0, end: progress).animate(
       CurvedAnimation(
         parent: _progressController,
@@ -86,7 +184,6 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       ),
     );
 
-    // Анимация изменения цвета кольца
     _colorAnimation = ColorTween(
       begin: _getProgressColor(progress),
       end: _getProgressColor(progress),
@@ -97,7 +194,6 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       ),
     );
 
-    // Анимация появления при смене дня
     _dayChangeAnimation = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(
         parent: _dayChangeController,
@@ -105,20 +201,18 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       ),
     );
 
-    // Запуск анимации прогресса
     _progressController.forward();
   }
 
   @override
   void dispose() {
-    _progressController.dispose(); // освобождение ресурсов
+    _progressController.dispose();
     _dayChangeController.dispose();
     super.dispose();
   }
 
-  // Смена дня по нажатию
   void _selectDay(String day) {
-    if (day == selectedDay) return; // если уже выбран, ничего не делаем
+    if (day == selectedDay) return;
 
     setState(() {
       _dayChangeController.reset();
@@ -130,7 +224,6 @@ class _StatisticsScreenState extends State<StatisticsScreen>
 
       _progressController.reset();
 
-      // Обновление анимации прогресса
       _progressAnimation = Tween<double>(
         begin: _progressAnimation.value,
         end: newProgress,
@@ -141,7 +234,6 @@ class _StatisticsScreenState extends State<StatisticsScreen>
         ),
       );
 
-      // Обновление цвета в зависимости от прогресса
       _colorAnimation = ColorTween(
         begin: _getProgressColor(_progressAnimation.value),
         end: _getProgressColor(newProgress),
@@ -152,87 +244,30 @@ class _StatisticsScreenState extends State<StatisticsScreen>
         ),
       );
 
-      _progressController.forward(); // запуск анимации
+      _progressController.forward();
     });
   }
 
-  // Построение UI
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF0F0F0),
-      body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: SizedBox(
-              height: 917,
-              child: Stack(
-                children: [
-                  _buildNavigationBar(), // нижняя панель
-                  _buildHeader(),        // заголовок
-                  _buildProgressChart(), // круг прогресса
-                  _buildCalendar(),      // дни недели
-                ],
-              ),
+    return CustomScrollView(
+      slivers: [
+        SliverToBoxAdapter(
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height,
+            child: Stack(
+              children: [
+                _buildHeader(),
+                _buildProgressChart(),
+                _buildCalendar(),
+              ],
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
-  // Нижняя панель навигации
-  Widget _buildNavigationBar() {
-    const navItems = [
-      {'icon': Icons.flag, 'label': 'Цели'},
-      {'icon': Icons.book, 'label': 'Блокнот'},
-      {'icon': Icons.bar_chart, 'label': 'Статистика'},
-      {'icon': Icons.person, 'label': 'Профиль'},
-    ];
-
-    return Positioned(
-      left: 0,
-      bottom: 0,
-      child: Container(
-        width: 412,
-        height: 70,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 8,
-              offset: Offset(0, -2),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: navItems.map((item) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(item['icon'] as IconData, size: 24,
-                    color: item['label'] == 'Статистика' ? Colors.green : Colors.black),
-                const SizedBox(height: 4),
-                Text(
-                  item['label'] as String,
-                  style: TextStyle(
-                    color: item['label'] == 'Статистика' ? Colors.green : Colors.black,
-                    fontSize: 13,
-                    fontFamily: 'Crimson Text',
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ],
-            );
-          }).toList(),
-        ),
-      ),
-    );
-  }
-
-  // Заголовок "Статистика"
   Widget _buildHeader() {
     return const Positioned(
       left: 20,
@@ -249,7 +284,6 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     );
   }
 
-  // Виджет с круговой диаграммой прогресса
   Widget _buildProgressChart() {
     return Positioned(
       left: 97,
@@ -279,9 +313,9 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                   alignment: Alignment.center,
                   children: [
                     Container(
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         shape: BoxShape.circle,
-                        color: const Color(0xFFF0F0F0),
+                        color: Color(0xFFF0F0F0),
                       ),
                     ),
                     CustomPaint(
@@ -324,14 +358,12 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     );
   }
 
-  // Выбор цвета кольца в зависимости от прогресса
   Color _getProgressColor(double value) {
     if (value < 0.3) return Colors.red;
     if (value < 0.7) return Colors.orange;
     return Colors.green;
   }
 
-  // Календарь с днями недели
   Widget _buildCalendar() {
     return Positioned(
       left: 18,
@@ -368,7 +400,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      entry.key, // День недели
+                      entry.key,
                       style: TextStyle(
                         color: entry.key == selectedDay
                             ? Colors.black
@@ -381,7 +413,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      entry.value.date, // Число месяца
+                      entry.value.date,
                       style: TextStyle(
                         color: entry.key == selectedDay
                             ? Colors.black
@@ -402,7 +434,6 @@ class _StatisticsScreenState extends State<StatisticsScreen>
   }
 }
 
-// Модель данных дня
 class DayData {
   final int steps;
   final String date;
@@ -413,7 +444,6 @@ class DayData {
   });
 }
 
-// Кастомный painter для круга прогресса
 class _ProgressRingPainter extends CustomPainter {
   final double progress;
   final double ringWidth;
@@ -434,7 +464,6 @@ class _ProgressRingPainter extends CustomPainter {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = min(size.width, size.height) / 2 - ringWidth / 2;
 
-    // Рисуем фоновый круг
     final backgroundPaint = Paint()
       ..color = const Color(0xFFF0F0F0)
       ..style = PaintingStyle.stroke
@@ -443,7 +472,6 @@ class _ProgressRingPainter extends CustomPainter {
 
     canvas.drawCircle(center, radius, backgroundPaint);
 
-    // Рисуем прогресс
     final progressPaint = Paint()
       ..color = backgroundColor
       ..style = PaintingStyle.stroke
