@@ -4,8 +4,11 @@ package com.yourday.project.backend.controller;
 
 import com.yourday.project.backend.entity.Notes;
 import com.yourday.project.backend.entity.User;
+import com.yourday.project.backend.security.JwtUtil;
+import com.yourday.project.backend.security.TokenBlacklist;
 import com.yourday.project.backend.service.RegistrationService;
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,41 +25,70 @@ public class RegistrationController {
     @Autowired
     private RegistrationService regService;
 
+    @Autowired
+    private JwtUtil jwtUtil;
+
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody User user, HttpSession session) {
+    public ResponseEntity<?> registerUser(@RequestBody User user) {
         try {
+            // Сохранить пользователя
+            User newUser = regService.registerUser(user);
 
-            regService.registerUser(user);
+            // Сгенерировать токен
+            String token = jwtUtil.generateToken(newUser);
 
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body("User registered successfully");
+            // Вернуть токен
+            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+                    "message", "User registered successfully",
+                    "token", token
+            ));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An unexpected error occurred.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Unexpected error occurred"));
         }
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody User user, HttpSession session) {
+    public ResponseEntity<?> loginUser(@RequestBody User user) {
         try {
             User loggedInUser = regService.loginUser(user);
+            String token = jwtUtil.generateToken(loggedInUser);
 
-            session.setAttribute("userId", loggedInUser.getId());
-            session.setAttribute("userName", loggedInUser.getName());
 
-            return ResponseEntity.ok("Logged in successfully");
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Login successful",
+                    "token", token
+            ));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Unexpected error occurred"));
         }
+    }
+
+    @Autowired
+    private TokenBlacklist tokenBlacklist;
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+        String token = extractTokenFromRequest(request);
+        if (token != null) {
+            tokenBlacklist.add(token);
+            return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Invalid token"));
+    }
+
+    private String extractTokenFromRequest(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
     }
 
 
