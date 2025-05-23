@@ -39,11 +39,7 @@ public class NotesController {
 
 
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Notes>> getNotesByUserId(@PathVariable String userId) {
-        List<Notes> notes = noteService.getNotesByUserId(userId);
-        return ResponseEntity.ok(notes);
-    }
+
 
     @PostMapping("/save")
     public ResponseEntity<Void> saveNote(@RequestBody Notes note, HttpServletRequest request) {
@@ -69,6 +65,23 @@ public class NotesController {
         }
         noteService.updateNotes(note, user);
         return ResponseEntity.ok().build();
+
+
+    }
+
+    @PostMapping("/delete")
+    public ResponseEntity<Void> deleteNote(@RequestBody Notes note, HttpServletRequest request) {
+        String token = jwtUtil.extractTokenFromRequest(request);
+        String userEmail = jwtUtil.extractEmail(token);
+
+        User user = userService.findByEmail(userEmail);
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
+        }
+        noteService.deleteNotes(note, user);
+        return ResponseEntity.ok().build();
+
+
     }
 }
 

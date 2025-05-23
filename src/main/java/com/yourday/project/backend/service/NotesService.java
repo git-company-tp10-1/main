@@ -43,13 +43,28 @@ public class NotesService {
                         "Note not found for user " + user.getId() + " at time " + notes.getTime()
                 ));
 
-
         existingNote.setTitle(notes.getTitle());
         existingNote.setContent(notes.getContent());
         existingNote.setUpdatedAt(LocalDateTime.now());
 
 
         return noteRepository.save(existingNote);
+    }
+
+    public void deleteNotes(Notes notes, User user) {
+
+        if (notes == null || user == null || notes.getTime() == null) {
+            throw new IllegalArgumentException("Notes, User, and Time cannot be null");
+        }
+
+
+        Notes existingNote = noteRepository.findByUserAndTime(user, notes.getTime())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Note not found for user " + user.getId() + " at time " + notes.getTime()
+                ));
+
+
+        noteRepository.delete(existingNote);
     }
 }
 
