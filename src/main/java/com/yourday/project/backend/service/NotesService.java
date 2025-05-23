@@ -6,8 +6,9 @@ import com.yourday.project.backend.interfase.NotesRepository;
 import com.yourday.project.backend.interfase.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.ConcurrentModificationException;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class NotesService {
@@ -25,15 +26,30 @@ public class NotesService {
         return noteRepository.findByUserId(userId);
     }
 
-    public Notes saveNotes(Notes notes, UUID userID) {
-
-        User user = userRepository.findById(userID)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
+    public void saveNotes(Notes notes, User user) {
         notes.setUser(user);
+        noteRepository.save(notes);
+    }
+
+    public Notes updateNotes(Notes notes, User user) {
+
+        if (notes == null || user == null || notes.getTime() == null) {
+            throw new IllegalArgumentException("Notes, User, and Time cannot be null");
+        }
 
 
-        return noteRepository.save(notes);
+        Notes existingNote = noteRepository.findByUserAndTime(user, notes.getTime())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Note not found for user " + user.getId() + " at time " + notes.getTime()
+                ));
+
+
+        existingNote.setTitle(notes.getTitle());
+        existingNote.setContent(notes.getContent());
+        existingNote.setUpdatedAt(LocalDateTime.now());
+
+
+        return noteRepository.save(existingNote);
     }
 }
 

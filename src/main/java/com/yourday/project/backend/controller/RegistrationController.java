@@ -75,7 +75,7 @@ public class RegistrationController {
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request) {
-        String token = extractTokenFromRequest(request);
+        String token = jwtUtil.extractTokenFromRequest(request);
         if (token != null) {
             tokenBlacklist.add(token);
             return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
@@ -83,13 +83,7 @@ public class RegistrationController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Invalid token"));
     }
 
-    private String extractTokenFromRequest(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
-        }
-        return null;
-    }
+
 
 
 

@@ -3,11 +3,18 @@ package com.yourday.project.backend.controller;
 import com.yourday.project.backend.entity.Notes;
 import com.yourday.project.backend.entity.User;
 import com.yourday.project.backend.interfase.UserRepository;
+import com.yourday.project.backend.security.JwtFilter;
+import com.yourday.project.backend.security.JwtUtil;
 import com.yourday.project.backend.service.NotesService;
+import com.yourday.project.backend.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -16,12 +23,18 @@ import java.util.List;
 public class NotesController {
 
     private final NotesService noteService;
-    private final UserRepository userRepository;
 
 
-    public NotesController(NotesService noteService, UserRepository userRepository) {
+    @Autowired
+    private JwtUtil jwtUtil;
+    @Autowired
+    private UserService userService;
+
+
+
+
+    public NotesController(NotesService noteService) {
         this.noteService = noteService;
-        this.userRepository = userRepository;
     }
 
 
@@ -33,22 +46,29 @@ public class NotesController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<String> saveNote(@RequestBody Notes noteRequest) {
-        try {
+    public ResponseEntity<Void> saveNote(@RequestBody Notes note, HttpServletRequest request) {
+        String token = jwtUtil.extractTokenFromRequest(request);
+        String userEmail = jwtUtil.extractEmail(token);
 
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String userEmail = authentication.getName();
-
-            User user = userRepository.findByEmail(userEmail)
-                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
-
-            Notes savedNote = noteService.saveNotes(noteRequest, user.getId());
-
-            return ResponseEntity.ok("Note saved successfully with ID: " + savedNote.getId());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+        User user = userService.findByEmail(userEmail);
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
         }
+        noteService.saveNotes(note, user);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/update")
+    public ResponseEntity<Void> updateNote(@RequestBody Notes note, HttpServletRequest request) {
+        String token = jwtUtil.extractTokenFromRequest(request);
+        String userEmail = jwtUtil.extractEmail(token);
+
+        User user = userService.findByEmail(userEmail);
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
+        }
+        noteService.updateNotes(note, user);
+        return ResponseEntity.ok().build();
     }
 }
 

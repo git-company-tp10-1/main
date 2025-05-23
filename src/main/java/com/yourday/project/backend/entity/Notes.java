@@ -1,5 +1,6 @@
 package com.yourday.project.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
@@ -16,7 +17,7 @@ public class Notes {
     private String id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ID_user_uuid", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "ID_user_uuid", nullable = false)
     private User user;
 
     @Column(name = "content", nullable = false, columnDefinition = "TEXT")
@@ -29,6 +30,15 @@ public class Notes {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt = LocalDateTime.now();
+
+    @Column(name = "time", nullable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime time;
+
+    @Column(name = "title", nullable = false, columnDefinition = "TEXT")
+    private String title;
+
+
 
     // Конструкторы
     public Notes() {
@@ -72,5 +82,23 @@ public class Notes {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+
+
+    }
+
+    public LocalDateTime getTime() {
+        return time;
+    }
+
+    public void setTime(LocalDateTime time) {
+        this.time = time;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 }
