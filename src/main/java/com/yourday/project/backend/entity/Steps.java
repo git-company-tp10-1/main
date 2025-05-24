@@ -1,6 +1,7 @@
 package com.yourday.project.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -13,10 +14,12 @@ public class Steps {
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     @Column(name = "ID_uuid", columnDefinition = "CHAR(36)", updatable = false, nullable = false)
+    @JsonIgnore
     private String id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ID_user_uuid", referencedColumnName = "id", nullable = false)
+    @JsonIgnore
     private User user;
 
     @Column(name = "step_count", nullable = false)
@@ -27,6 +30,7 @@ public class Steps {
     private LocalDateTime usageDate;
 
     @Column(name = "created_at", updatable = false, nullable = false)
+    @JsonIgnore
     private LocalDateTime createdAt = LocalDateTime.now();
 
 

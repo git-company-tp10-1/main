@@ -1,6 +1,7 @@
 package com.yourday.project.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
@@ -14,10 +15,12 @@ public class Notes {
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     @Column(name = "ID_uuid", columnDefinition = "CHAR(36)", updatable = false, nullable = false)
+    @JsonIgnore
     private String id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ID_user_uuid", nullable = false)
+    @JsonIgnore
     private User user;
 
     @Column(name = "content", nullable = false, columnDefinition = "TEXT")
@@ -25,10 +28,12 @@ public class Notes {
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false, nullable = false)
+    @JsonIgnore
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
+    @JsonIgnore
     private LocalDateTime updatedAt = LocalDateTime.now();
 
     @Column(name = "time", nullable = false)
