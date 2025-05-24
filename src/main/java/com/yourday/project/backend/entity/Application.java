@@ -3,6 +3,7 @@ package com.yourday.project.backend.entity;
 import jakarta.persistence.*;
 import org.hibernate.annotations.GenericGenerator;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -28,7 +29,7 @@ public class Application {
     private Long usageTimeMillis;
 
     @Column(name = "usage_date", nullable = false)
-    private LocalDateTime usageDate;
+    private LocalDate usageDate;
 
 
     public Application() {
@@ -75,11 +76,13 @@ public class Application {
         this.usageTimeMillis = usageTimeMillis;
     }
 
-    public LocalDateTime getUsageDate() {
+
+
+    public LocalDate getUsageDate() {
         return usageDate;
     }
 
-    public void setUsageDate(LocalDateTime usageDate) {
+    public void setUsageDate(LocalDate usageDate) {
         this.usageDate = usageDate;
     }
 }
