@@ -1,34 +1,42 @@
 package com.yourday.project.backend.service;
 
 
-
 import com.yourday.project.backend.entity.Steps;
 import com.yourday.project.backend.entity.User;
 
 import com.yourday.project.backend.interfase.StepsRepository;
-import com.yourday.project.backend.interfase.UserRepository;
 import org.springframework.stereotype.Service;
 
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
 public class StepsService {
 
     private final StepsRepository stepsRepository;
-    private final UserRepository userRepository;;
 
-    public StepsService(StepsRepository stepsRepository, UserRepository userRepository) {
+
+
+    public StepsService(StepsRepository stepsRepository) {
         this.stepsRepository = stepsRepository;
-        this.userRepository = userRepository;
+
     }
 
     public Steps getStepsByUserId(String userId) {
         return stepsRepository.findByUserId(userId);
     }
 
-    public Steps saveSteps(Steps steps, User user) {
+    public void saveSteps(Steps steps, User user) {
         steps.setUser(user);
-        return stepsRepository.save(steps);
+        stepsRepository.save(steps);
     }
+
+
+    public int getTotalSteps(UUID userId, LocalDateTime startDate, LocalDateTime endDate) {
+        List<Steps> steps = stepsRepository.findTotalStepsByUserIdAndUsageDateBetween(userId.toString(), startDate, endDate);
+        return steps.stream().mapToInt(Steps::getStepCount).sum();
+    }
+
 }

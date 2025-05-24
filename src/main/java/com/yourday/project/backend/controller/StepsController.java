@@ -19,6 +19,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/steps")
@@ -57,5 +61,38 @@ public class StepsController {
         }
         stepsService.saveSteps(steps, user);
         return ResponseEntity.ok().build();
+    }
+
+
+    @GetMapping("/total")
+    public ResponseEntity<Integer> getTotalSteps(@RequestParam String startDate, @RequestParam String endDate, HttpServletRequest request) {
+        try {
+
+            String token = jwtUtil.extractTokenFromRequest(request);
+            String userEmail = jwtUtil.extractEmail(token);
+
+
+            User user = userService.findByEmail(userEmail);
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+
+
+            LocalDateTime start = LocalDateTime.parse(startDate);
+            LocalDateTime end = LocalDateTime.parse(endDate);
+
+
+            if (start.isAfter(end)) {
+                return ResponseEntity.badRequest().body(0);
+            }
+
+
+            int totalSteps = stepsService.getTotalSteps(user.getId(), start, end);
+            return ResponseEntity.ok(totalSteps);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(0);
+        }
     }
 }
