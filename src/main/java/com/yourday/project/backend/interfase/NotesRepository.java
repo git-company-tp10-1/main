@@ -15,6 +15,9 @@ public interface NotesRepository extends JpaRepository<Notes, String> {
 
 
     Optional<Notes> findByUserAndTime(User user, LocalDateTime time);
+
+
+    List<Notes> findAllByUserAndTimeBetween(User user, LocalDateTime start, LocalDateTime end );
 }
 
 

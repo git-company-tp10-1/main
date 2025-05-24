@@ -16,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -80,6 +81,22 @@ public class NotesController {
         }
         noteService.deleteNotes(note, user);
         return ResponseEntity.ok().build();
+
+    }
+
+    @GetMapping("/by-date")
+    public ResponseEntity<List<Notes>> getNotesForDate(@RequestParam String date,  HttpServletRequest request) {
+
+            String token = jwtUtil.extractTokenFromRequest(request);
+            String userEmail = jwtUtil.extractEmail(token);
+
+            User user = userService.findByEmail(userEmail);
+            if (user == null) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
+            }
+            LocalDate localDate = LocalDate.parse(date);
+            List<Notes> notes = noteService.getNotesForDate(localDate, user);
+            return ResponseEntity.ok(notes);
 
 
     }

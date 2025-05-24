@@ -6,7 +6,9 @@ import com.yourday.project.backend.interfase.NotesRepository;
 import com.yourday.project.backend.interfase.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ConcurrentModificationException;
 import java.util.List;
 
@@ -65,6 +67,15 @@ public class NotesService {
 
 
         noteRepository.delete(existingNote);
+    }
+
+
+
+    public List<Notes> getNotesForDate(LocalDate date, User user) {
+
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
+        return noteRepository.findAllByUserAndTimeBetween(user, startOfDay, endOfDay);
     }
 }
 
