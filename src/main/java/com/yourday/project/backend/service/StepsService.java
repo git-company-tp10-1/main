@@ -27,14 +27,8 @@ public class StepsService {
         return stepsRepository.findByUserId(userId);
     }
 
-    public Steps saveSteps(Steps steps, UUID userID) {
-
-        User user = userRepository.findById(userID)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
+    public Steps saveSteps(Steps steps, User user) {
         steps.setUser(user);
-
-
         return stepsRepository.save(steps);
     }
 }

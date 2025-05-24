@@ -1,5 +1,6 @@
 package com.yourday.project.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -22,6 +23,7 @@ public class Steps {
     private Integer stepCount;
 
     @Column(name = "usage_date", nullable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime usageDate;
 
     @Column(name = "created_at", updatable = false, nullable = false)

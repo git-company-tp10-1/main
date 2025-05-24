@@ -2,16 +2,22 @@ package com.yourday.project.backend.controller;
 
 
 
+import com.yourday.project.backend.entity.Notes;
 import com.yourday.project.backend.entity.Steps;
 import com.yourday.project.backend.entity.User;
 import com.yourday.project.backend.interfase.UserRepository;
+import com.yourday.project.backend.security.JwtUtil;
 import com.yourday.project.backend.service.StepsService;
 
+import com.yourday.project.backend.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.server.ResponseStatusException;
 
 
 @RestController
@@ -19,13 +25,20 @@ import org.springframework.web.bind.annotation.*;
 public class StepsController {
 
     private final StepsService stepsService;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
 
-    public StepsController(StepsService stepsService, UserRepository userRepository) {
+    @Autowired
+    private final JwtUtil jwtUtil;
+
+
+    public StepsController(StepsService stepsService, UserService userService, JwtUtil jwtUtil) {
         this.stepsService = stepsService;
-        this.userRepository = userRepository;
+        this.userService = userService;
+        this.jwtUtil = jwtUtil;
     }
+
+
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<Steps> getNotesByUserId(@PathVariable String userId) {
@@ -34,21 +47,15 @@ public class StepsController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<String> saveNote(@RequestBody Steps steps) {
-        try {
+    public ResponseEntity<Void> saveStep(@RequestBody Steps steps, HttpServletRequest request) {
+        String token = jwtUtil.extractTokenFromRequest(request);
+        String userEmail = jwtUtil.extractEmail(token);
 
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String userEmail = authentication.getName();
-
-            User user = userRepository.findByEmail(userEmail)
-                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
-
-            Steps step = stepsService.saveSteps(steps, user.getId());
-
-            return ResponseEntity.ok("Note saved successfully" );
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+        User user = userService.findByEmail(userEmail);
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
         }
+        stepsService.saveSteps(steps, user);
+        return ResponseEntity.ok().build();
     }
 }
