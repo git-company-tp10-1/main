@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'main_screen.dart';
 
 class AuthorizeScreen extends StatefulWidget {
   const AuthorizeScreen({super.key});
@@ -12,12 +13,14 @@ class _AuthorizeScreenState extends State<AuthorizeScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
+  final String logoPath = 'assets/images/logo.png';
+
   InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
       filled: true,
       fillColor: Colors.white,
       hintText: hint,
-      hintStyle: const TextStyle(color: Color(0xFF828282)), // Серый цвет для подсказки
+      hintStyle: const TextStyle(color: Color(0xFF828282)),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(width: 1, color: Color(0xFFDFDFDF)),
@@ -71,14 +74,31 @@ class _AuthorizeScreenState extends State<AuthorizeScreen> {
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
+              // Контейнер с логотипом
               Container(
                 width: 143,
                 height: 143,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF86DBB2),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Icon(Icons.person, size: 60, color: Colors.white),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image.asset(
+                    logoPath,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      // Fallback если изображение не загрузится
+                      return Container(
+                        color: const Color(0xFF86DBB2),
+                        child: const Icon(
+                          Icons.person,
+                          size: 60,
+                          color: Colors.white,
+                        ),
+                      );
+                    },
+                  ),
+                ),
               ),
               const SizedBox(height: 30),
               const Text(
@@ -93,28 +113,44 @@ class _AuthorizeScreenState extends State<AuthorizeScreen> {
               const SizedBox(height: 30),
               TextField(
                 controller: _emailController,
-                style: const TextStyle(color: Colors.black), // Черный цвет для введенного текста
+                style: const TextStyle(color: Colors.black),
                 decoration: _inputDecoration('email@domain.com'),
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: _passwordController,
                 obscureText: _obscurePassword,
-                style: const TextStyle(color: Colors.black), // Черный цвет для введенного текста
+                style: const TextStyle(color: Colors.black),
                 decoration: _inputDecoration('Пароль').copyWith(
                   suffixIcon: IconButton(
                     icon: Icon(
-                        _obscurePassword ? Icons.visibility_off : Icons.visibility),
-                    onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                      _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                    ),
+                    onPressed: () =>
+                        setState(() => _obscurePassword = !_obscurePassword),
                   ),
                 ),
               ),
               const SizedBox(height: 30),
-              _authButton('Войти', const Color(0xFF86DBB2), () {}),
+              _authButton('Войти', const Color(0xFF86DBB2), () {
+                // Здесь вход по логике с сервером, если нужно
+              }),
               const SizedBox(height: 16),
-              _outlinedButton('Регистрация', () {}),
+              _outlinedButton('Регистрация', () {
+                // Навигация к регистрации
+              }),
               const SizedBox(height: 16),
-              _authButton('Войти как гость', const Color(0xFFF5F2F2), () {}),
+              _authButton('Войти как гость', const Color(0xFFF5F2F2), () {
+                // Переход сразу на экран со статистикой
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const MainScreen(
+                      isGuest: true,
+                    ),
+                  ),
+                );
+              }),
               const SizedBox(height: 20),
               TextButton(
                 onPressed: () {},

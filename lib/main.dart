@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:project/screens/registration.dart';
-import 'screens/statistics.dart'; // Импортируем экран статистики
-import 'screens/profile.dart';
+import 'core/navigation/routes.dart'; // файл с описанием маршрутов
 
 void main() {
   runApp(const MyApp());
@@ -14,10 +12,16 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'YourDay',
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color.fromARGB(255, 18, 32, 47),
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.light().copyWith(
+        scaffoldBackgroundColor: const Color(0xFFEFEFEF),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFFEFEFEF),
+          elevation: 0,
+        ),
       ),
-      home: StatisticsScreen(), // Устанавливаем StatisticsScreen как домашний экран
+      initialRoute: '/auth', // начальный экран — авторизация
+      routes: appRoutes,  // подключаем карту маршрутов
     );
   }
 }
