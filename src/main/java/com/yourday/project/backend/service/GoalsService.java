@@ -7,6 +7,8 @@ import com.yourday.project.backend.interfase.GoalsRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 public class GoalsService {
@@ -54,5 +56,12 @@ public class GoalsService {
                 ));
 
         goalsRepository.delete(existingGoal);
+
     }
+
+    public List<Goals> findAllGoalsByUserId(UUID userId) {
+        return goalsRepository.findByUserId(userId.toString());
+    }
+
+
 }
