@@ -32,7 +32,7 @@ public class Goals {
     private String content;
 
     @Column(name = "Created_by", nullable = false)
-    private Boolean createdByUser; // true - создано пользователем, false - системой/тренером
+    private Boolean createdByUser = true; // true - создано пользователем, false - системой/тренером
 
     @Enumerated(EnumType.STRING)
     @Column(name = "Status", nullable = false, length = 255)
@@ -41,12 +41,12 @@ public class Goals {
     @CreationTimestamp
     @Column(name = "created_at", updatable = false, nullable = false)
     @JsonIgnore
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();;
 
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     @JsonIgnore
-    private LocalDateTime updatedAt;
+    private LocalDateTime updatedAt = LocalDateTime.now();;
 
 
     public Goals() {

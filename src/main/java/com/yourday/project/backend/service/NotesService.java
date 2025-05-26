@@ -16,12 +16,11 @@ import java.util.List;
 public class NotesService {
 
     private final NotesRepository noteRepository;
-    private final UserRepository userRepository;;
+
 
 
     public NotesService(NotesRepository noteRepository, UserRepository userRepository) {
         this.noteRepository = noteRepository;
-        this.userRepository = userRepository;
     }
 
     public List<Notes> getNotesByUserId(String userId) {
