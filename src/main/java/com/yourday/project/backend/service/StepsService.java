@@ -8,6 +8,7 @@ import com.yourday.project.backend.interfase.StepsRepository;
 import org.springframework.stereotype.Service;
 
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -34,7 +35,7 @@ public class StepsService {
     }
 
 
-    public int getTotalSteps(UUID userId, LocalDateTime startDate, LocalDateTime endDate) {
+    public int getTotalSteps(UUID userId, LocalDate startDate, LocalDate endDate) {
         List<Steps> steps = stepsRepository.findTotalStepsByUserIdAndUsageDateBetween(userId.toString(), startDate, endDate);
         return steps.stream().mapToInt(Steps::getStepCount).sum();
     }

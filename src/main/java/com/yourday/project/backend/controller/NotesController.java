@@ -5,6 +5,7 @@ import com.yourday.project.backend.entity.User;
 import com.yourday.project.backend.interfase.UserRepository;
 import com.yourday.project.backend.security.JwtFilter;
 import com.yourday.project.backend.security.JwtUtil;
+import com.yourday.project.backend.service.GoalGenerationService;
 import com.yourday.project.backend.service.NotesService;
 import com.yourday.project.backend.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,7 +18,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/notes")
@@ -30,6 +33,7 @@ public class NotesController {
     private JwtUtil jwtUtil;
     @Autowired
     private UserService userService;
+
 
 
 
@@ -96,6 +100,7 @@ public class NotesController {
             }
             LocalDate localDate = LocalDate.parse(date);
             List<Notes> notes = noteService.getNotesForDate(localDate, user);
+
             return ResponseEntity.ok(notes);
 
 

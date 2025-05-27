@@ -16,4 +16,6 @@ public interface GoalsRepository extends JpaRepository<Goals, String> {
     Optional<Goals> findByUserAndContent(User user, String content);
 
     List<Goals> findByUserId(String user_id);
+
+    List<Goals> findByUserIdAndCreatedByUserFalse(String userId);
 }

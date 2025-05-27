@@ -78,8 +78,8 @@ public class StepsController {
             }
 
 
-            LocalDateTime start = LocalDateTime.parse(startDate);
-            LocalDateTime end = LocalDateTime.parse(endDate);
+            LocalDate start = LocalDate.parse(startDate);
+            LocalDate end = LocalDate.parse(endDate);
 
 
             if (start.isAfter(end)) {

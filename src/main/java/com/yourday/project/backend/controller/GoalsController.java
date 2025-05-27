@@ -5,6 +5,7 @@ import com.yourday.project.backend.entity.Goals;
 import com.yourday.project.backend.entity.Notes;
 import com.yourday.project.backend.entity.User;
 import com.yourday.project.backend.security.JwtUtil;
+import com.yourday.project.backend.service.GoalGenerationService;
 import com.yourday.project.backend.service.GoalsService;
 
 import com.yourday.project.backend.service.UserService;
@@ -17,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/goals")
@@ -29,6 +31,9 @@ public class GoalsController {
     private JwtUtil jwtUtil;
     @Autowired
     private UserService userService;
+    @Autowired
+    private GoalGenerationService goalGenerationService;
+
 
     public GoalsController(GoalsService goalsService) {
         this.goalsService = goalsService;
@@ -91,4 +96,24 @@ public class GoalsController {
         return ResponseEntity.ok(goals);
 
     }
+
+
+    @GetMapping("/AI")
+    public ResponseEntity<List<Goals>> findAllAiGoalsByUserId(HttpServletRequest request) throws Exception {
+
+        String token = jwtUtil.extractTokenFromRequest(request);
+        String userEmail = jwtUtil.extractEmail(token);
+
+        User user = userService.findByEmail(userEmail);
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
+        }
+
+        Map<String, Object> result = goalGenerationService.generateUserGoals(user);
+        goalsService.saveAiGoal(result, user);
+        List<Goals> goals = goalsService.findAllGoalsAiByUserId(user.getId());
+        return ResponseEntity.ok(goals);
+
+    }
+
 }

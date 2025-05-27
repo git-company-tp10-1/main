@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.hibernate.annotations.GenericGenerator;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -26,8 +27,8 @@ public class Steps {
     private Integer stepCount;
 
     @Column(name = "usage_date", nullable = false)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime usageDate;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate usageDate;
 
     @Column(name = "created_at", updatable = false, nullable = false)
     @JsonIgnore
@@ -62,11 +63,11 @@ public class Steps {
         this.stepCount = stepCount;
     }
 
-    public LocalDateTime getUsageDate() {
+    public LocalDate getUsageDate() {
         return usageDate;
     }
 
-    public void setUsageDate(LocalDateTime usageDate) {
+    public void setUsage(LocalDate usageDate) {
         this.usageDate = usageDate;
     }
 

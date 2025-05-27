@@ -1,5 +1,6 @@
 package com.yourday.project.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.hibernate.annotations.GenericGenerator;
@@ -32,7 +33,7 @@ public class Application {
     private Long usageTimeMillis;
 
     @Column(name = "usage_date", nullable = false)
-    @JsonIgnore
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate usageDate;
 
 
