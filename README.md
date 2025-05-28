@@ -59,7 +59,7 @@ YouTrack работает только с включенным VPN
 ДОКУМЕНТАЦИЯ:<br>
 1. Техническое задание [(PDF)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Техническое%20задание%20(1).pdf) [(DOCX)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Техническое%20задание%20(1).docx)
 2. Предпроектное исследование  [(PDF)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Predproektnoe_issledovanie.pdf) [(DOCX)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Predproektnoe_issledovanie.docx)
-3. [Схема API](https://gist.githubusercontent.com/owl336/95c88da75749ac60e305bc8e2d762f8d/raw/ed8e1208c6a49f7760968002c5509d11b01602cd/swagger.yaml)
+3. [Схема API](http://193.233.103.34:8080/swagger-ui/index.html#/)
 4. [ER и UML диаграммы](https://github.com/git-company-tp10-1/main/tree/main/Documentation/charts)
 5. [UML диаграммы на Miro](https://miro.com/app/board/uXjVIJDT77E=/?share_link_id=931326801804)
 6. [Пользоватские сценарии](https://miro.com/app/board/uXjVIM5DcKg=/?share_link_id=267269145843)
