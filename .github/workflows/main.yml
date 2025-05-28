@@ -9,7 +9,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    environment: production
+    environment: SSH_Secret
     steps:
     - name: deploy
       run: |
