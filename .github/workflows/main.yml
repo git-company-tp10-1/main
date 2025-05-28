@@ -1,0 +1,24 @@
+name: CI/CD
+on:
+  push:
+    branches: [ "Backend" ]
+  pull_request_target:
+    branches: [ "Backend" ]
+
+jobs:
+
+  deploy:
+    runs-on: ubuntu-latest
+    environment: SSH_Secret
+    steps:
+    - name: deploy
+      run: |
+           mkdir -p ~/.ssh
+            echo "${{ secrets.SSH }}" | tr -d '\r' > ~/.ssh/id_ed25519
+            chmod 600 ~/.ssh/id_ed25519
+           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 root@193.233.103.34 << 'EOF'
+            cd main
+            git pull
+            docker-compose down
+            docker-compose up --build -d
+           EOF
