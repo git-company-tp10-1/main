@@ -6,18 +6,24 @@ on:
     branches: [ "Backend" ]
 
 jobs:
-
   deploy:
     runs-on: ubuntu-latest
     steps:
-    - name: deploy
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup SSH
       run: |
-           mkdir -p ~/.ssh
-           echo "${{ secrets.SSH }}" > ~/.ssh/id_ed25519
-           chmod 600 ~/.ssh/id_ed25519
-           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 root@193.233.103.34 << 'EOF'
-            cd main
-            git pull
-            docker-compose down
-            docker-compose up --build -d
-           EOF
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH }}" > ~/.ssh/id_ed25519
+        chmod 600 ~/.ssh/id_ed25519
+        ssh-keyscan 193.233.103.34 >> ~/.ssh/known_hosts
+        
+    - name: Execute remote commands
+      run: |
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 root@193.233.103.34 "
+          cd /main
+          git pull
+          docker-compose down
+          docker-compose up --build -d
+        "
