@@ -1,0 +1,32 @@
+
+services:
+
+  backend:
+    build: .
+    container_name: backend_container
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+    networks:
+      - app_network
+
+  mysql:
+    image: mysql
+    container_name: db_container
+    restart: always
+    environment:
+        MYSQL_DATABASE: tp1
+        MYSQL_ROOT_PASSWORD: 1234
+    ports:
+      - "127.0.0.1:3307:3306"
+    volumes:
+      - ./dbdata:/var/lib/mysql/
+    networks:
+      - app_network
+
+
+networks:
+  app_network:
+    driver: bridge
