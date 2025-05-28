@@ -13,7 +13,7 @@ jobs:
     - name: deploy
       run: |
            mkdir -p ~/.ssh
-           echo "${{ SSH_Secret.SSH }}" > ~/.ssh/id_ed25519
+           echo "${{ secrets.SSH }}" > ~/.ssh/id_ed25519
            chmod 600 ~/.ssh/id_ed25519
            ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 root@193.233.103.34 << 'EOF'
             cd main
