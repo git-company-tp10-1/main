@@ -19,15 +19,9 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-
-
     @Autowired
     private JwtUtil jwtUtil;
 
-    @GetMapping("/get")
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
-    }
 
     @PostMapping("/update")
     public ResponseEntity<?> updateUser(@RequestBody User userUpdate, HttpServletRequest request) {

@@ -30,9 +30,6 @@ public class StepsController {
 
     private final StepsService stepsService;
     private final UserService userService;
-
-
-    @Autowired
     private final JwtUtil jwtUtil;
 
 
@@ -42,13 +39,6 @@ public class StepsController {
         this.jwtUtil = jwtUtil;
     }
 
-
-
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<Steps> getNotesByUserId(@PathVariable String userId) {
-         Steps step = stepsService.getStepsByUserId(userId);
-        return ResponseEntity.ok(step);
-    }
 
     @PostMapping("/save")
     public ResponseEntity<Void> saveStep(@RequestBody Steps steps, HttpServletRequest request) {

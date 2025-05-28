@@ -1,4 +1,5 @@
 package com.yourday.project.backend.entity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -13,6 +14,7 @@ public class User {
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "uuid2")
     @Column(columnDefinition = "CHAR(36)", updatable = false, nullable = false)
+    @JsonIgnore
     private String id;
 
     @Column(nullable = false)
@@ -27,10 +29,12 @@ public class User {
     private boolean is_premium;
 
     @Column(name = "created_at", nullable = false)
+    @JsonIgnore
     private LocalDateTime created_at;
 
 
     @Column(name = "updated_at")
+    @JsonIgnore
     private LocalDateTime updated_at;
 
 

@@ -7,6 +7,9 @@ import com.yourday.project.backend.entity.User;
 import com.yourday.project.backend.security.JwtUtil;
 import com.yourday.project.backend.security.TokenBlacklist;
 import com.yourday.project.backend.service.RegistrationService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,16 +31,17 @@ public class RegistrationController {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private TokenBlacklist tokenBlacklist;
+
+    @SecurityRequirements()
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody User user) {
         try {
-            // Сохранить пользователя
             User newUser = regService.registerUser(user);
-
-            // Сгенерировать токен
             String token = jwtUtil.generateToken(newUser);
 
-            // Вернуть токен
+
             return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
                     "message", "User registered successfully",
                     "token", token
@@ -50,6 +54,7 @@ public class RegistrationController {
         }
     }
 
+    @SecurityRequirements()
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody User user) {
         try {
@@ -70,8 +75,6 @@ public class RegistrationController {
         }
     }
 
-    @Autowired
-    private TokenBlacklist tokenBlacklist;
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request) {
