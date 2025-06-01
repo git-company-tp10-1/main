@@ -58,14 +58,15 @@ YouTrack работает только с включенным VPN
 #
 ДОКУМЕНТАЦИЯ:<br>
 1. Техническое задание [(PDF)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Техническое%20задание%20(1).pdf) [(DOCX)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Техническое%20задание%20(1).docx)
-2. Предпроектное исследование  [(PDF)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Predproektnoe_issledovanie.pdf) [(DOCX)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Predproektnoe_issledovanie.docx)
-3. [Схема API](http://193.233.103.34:8080/swagger-ui/index.html#/)
-4. [ER и UML диаграммы](https://github.com/git-company-tp10-1/main/tree/main/Documentation/charts)
-5. [UML диаграммы на Miro](https://miro.com/app/board/uXjVIJDT77E=/?share_link_id=931326801804)
-6. [Пользоватские сценарии](https://miro.com/app/board/uXjVIM5DcKg=/?share_link_id=267269145843)
-7. Презентация ТЗ [PDF](https://github.com/git-company-tp10-1/main/blob/main/Documentation/презентация%20ТЗ.pdf)  [PPTX](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Презентация%20ТЗ%20.pptx)
-8. Презентация 2 этапа [PDF](https://github.com/git-company-tp10-1/main/blob/main/Documentation/презентация%20статуса%20проекта.pdf)  [PPTX](https://github.com/git-company-tp10-1/main/blob/main/Documentation/презентация%20статуса%20проекта.pptx)
-9. PM отчёт [(PDF)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/pm_otchet.pdf) [(DOCX)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/pm_otchet.docx)
+2. Техническое задание исправленое с разрешения преподавателя [(PDF)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/TZ_ispravlennoe%20(2).pdf) [(DOCX)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/TZ_ispravlennoe%20(2).docx)
+3. Предпроектное исследование  [(PDF)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Predproektnoe_issledovanie.pdf) [(DOCX)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Predproektnoe_issledovanie.docx)
+4. [Схема API](http://193.233.103.34:8080/swagger-ui/index.html#/)
+5. [ER и UML диаграммы](https://github.com/git-company-tp10-1/main/tree/main/Documentation/charts)
+6. [UML диаграммы на Miro](https://miro.com/app/board/uXjVIJDT77E=/?share_link_id=931326801804)
+7. [Пользоватские сценарии](https://miro.com/app/board/uXjVIM5DcKg=/?share_link_id=267269145843)
+8. Презентация ТЗ [PDF](https://github.com/git-company-tp10-1/main/blob/main/Documentation/презентация%20ТЗ.pdf)  [PPTX](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Презентация%20ТЗ%20.pptx)
+9. Презентация 2 этапа [PDF](https://github.com/git-company-tp10-1/main/blob/main/Documentation/презентация%20статуса%20проекта.pdf)  [PPTX](https://github.com/git-company-tp10-1/main/blob/main/Documentation/презентация%20статуса%20проекта.pptx)
+10. PM отчёт [(PDF)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/pm_otchet.pdf) [(DOCX)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/pm_otchet.docx)
 
 
 #
