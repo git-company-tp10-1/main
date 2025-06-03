@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
+import 'package:intl/intl.dart';
 
 class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({super.key});
@@ -9,79 +10,16 @@ class StatisticsScreen extends StatefulWidget {
 }
 
 class _StatisticsScreenState extends State<StatisticsScreen> with SingleTickerProviderStateMixin {
-  String _selectedDay = 'ВС';
+  late String _selectedDay;
   late AnimationController _animationController;
   late Animation<double> _stepsAnimation;
-
-  final Map<String, DayData> _daysData = {
-    'ПН': DayData(
-      steps: 1200,
-      date: '19',
-      appUsages: [
-        AppUsage(name: 'Telegram', icon: Icons.send, color: const Color(0xFF34AADF), minutes: 60),
-        AppUsage(name: 'YouTube', icon: Icons.play_arrow, color: const Color(0xFFFF0000), minutes: 60),
-        AppUsage(name: 'TikTok', icon: Icons.music_note, color: const Color(0xFF000000), minutes: 60),
-      ],
-    ),
-    'ВТ': DayData(
-      steps: 5800,
-      date: '20',
-      appUsages: [
-        AppUsage(name: 'Instagram', icon: Icons.camera_alt, color: const Color(0xFFE1306C), minutes: 60),
-        AppUsage(name: 'WhatsApp', icon: Icons.chat, color: const Color(0xFF25D366), minutes: 60),
-        AppUsage(name: 'Twitter', icon: Icons.message, color: const Color(0xFF1DA1F2), minutes: 60),
-      ],
-    ),
-    'СР': DayData(
-      steps: 6300,
-      date: '21',
-      appUsages: [
-        AppUsage(name: 'Netflix', icon: Icons.movie, color: const Color(0xFFE50914), minutes: 60),
-        AppUsage(name: 'Spotify', icon: Icons.music_note, color: const Color(0xFF1DB954), minutes: 60),
-        AppUsage(name: 'Reddit', icon: Icons.forum, color: const Color(0xFFFF5700), minutes: 60),
-      ],
-    ),
-    'ЧТ': DayData(
-      steps: 4900,
-      date: '22',
-      appUsages: [
-        AppUsage(name: 'Facebook', icon: Icons.facebook, color: const Color(0xFF1877F2), minutes: 60),
-        AppUsage(name: 'Discord', icon: Icons.gamepad, color: const Color(0xFF5865F2), minutes: 60),
-        AppUsage(name: 'Zoom', icon: Icons.videocam, color: const Color(0xFF2D8CFF), minutes: 60),
-      ],
-    ),
-    'ПТ': DayData(
-      steps: 7100,
-      date: '23',
-      appUsages: [
-        AppUsage(name: 'LinkedIn', icon: Icons.business, color: const Color(0xFF0A66C2), minutes: 60),
-        AppUsage(name: 'Pinterest', icon: Icons.image, color: const Color(0xFFE60023), minutes: 60),
-        AppUsage(name: 'Twitch', icon: Icons.gamepad, color: const Color(0xFF9146FF), minutes: 60),
-      ],
-    ),
-    'СБ': DayData(
-      steps: 3900,
-      date: '24',
-      appUsages: [
-        AppUsage(name: 'Snapchat', icon: Icons.camera_alt, color: const Color(0xFFFFFC00), minutes: 60),
-        AppUsage(name: 'Viber', icon: Icons.chat, color: const Color(0xFF7360F2), minutes: 60),
-        AppUsage(name: 'Skype', icon: Icons.videocam, color: const Color(0xFF00AFF0), minutes: 60),
-      ],
-    ),
-    'ВС': DayData(
-      steps: 5063,
-      date: '25',
-      appUsages: [
-        AppUsage(name: 'Telegram', icon: Icons.send, color: const Color(0xFF34AADF), minutes: 60),
-        AppUsage(name: 'YouTube', icon: Icons.play_arrow, color: const Color(0xFFFF0000), minutes: 60),
-        AppUsage(name: 'TikTok', icon: Icons.music_note, color: const Color(0xFF000000), minutes: 60),
-      ],
-    ),
-  };
+  late Map<String, DayData> _daysData;
 
   @override
   void initState() {
     super.initState();
+    _initDaysData();
+
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1000),
@@ -93,6 +31,47 @@ class _StatisticsScreenState extends State<StatisticsScreen> with SingleTickerPr
       ),
     );
     _animationController.forward();
+  }
+
+  void _initDaysData() {
+    final now = DateTime.now().toLocal();
+    final currentWeekday = now.weekday; // 1 (пн) - 7 (вс)
+
+    // Русские сокращения дней недели
+    final weekdays = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
+    _selectedDay = weekdays[currentWeekday - 1];
+
+    _daysData = {};
+
+    // Генерируем данные для каждого дня текущей недели
+    for (int i = 0; i < 7; i++) {
+      final date = now.subtract(Duration(days: currentWeekday - 1 - i));
+      _daysData[weekdays[i]] = DayData(
+        steps: _generateRandomSteps(),
+        date: DateFormat('d').format(date), // Только число
+        appUsages: _generateAppUsages(),
+      );
+    }
+  }
+
+  int _generateRandomSteps() {
+    return Random().nextInt(7500);
+  }
+
+  List<AppUsage> _generateAppUsages() {
+    // Пример данных - можно заменить на реальные
+    final apps = [
+      {'name': 'Telegram', 'icon': Icons.send, 'color': const Color(0xFF5DCAE8)},
+      {'name': 'YouTube', 'icon': Icons.play_arrow, 'color': const Color(0xFFFF8A7A)},
+      {'name': 'TikTok', 'icon': Icons.music_note, 'color': const Color(0xFF5A5A5A)},
+    ];
+
+    return apps.map((app) => AppUsage(
+      name: app['name'] as String,
+      icon: app['icon'] as IconData,
+      color: app['color'] as Color,
+      minutes: 20 + Random().nextInt(100), // Случайное время использования
+    )).toList();
   }
 
   @override
@@ -203,7 +182,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> with SingleTickerPr
               ),
             ),
             const SizedBox(height: 40),
-            // Заголовок и иконка шагов
+            // Шаги
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 40),
               child: Row(
@@ -221,7 +200,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> with SingleTickerPr
               ),
             ),
             const SizedBox(height: 20),
-            // Круговая диаграмма шагов (анимация справа налево)
+            // Круговая диаграмма шагов
             Stack(
               alignment: Alignment.center,
               children: [
@@ -246,7 +225,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> with SingleTickerPr
                         painter: _StepsRingPainter(
                           progress: _stepsAnimation.value * (currentData.steps / 7500),
                           color: const Color(0xFF86DBB2),
-                          direction: -1, // Анимация справа налево
+                          direction: -1,
                         ),
                         size: const Size(220, 220),
                       );
@@ -272,24 +251,19 @@ class _StatisticsScreenState extends State<StatisticsScreen> with SingleTickerPr
               ),
             ),
             const SizedBox(height: 40),
-            // Заголовок статистики с иконками
+            // Статистика приложений
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 40),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      const Text(
-                        'Статистика',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontFamily: 'Crimson Text',
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                      // Шарик
-                    ],
+                  const Text(
+                    'Статистика',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontFamily: 'Crimson Text',
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
                   GestureDetector(
                     onTap: _navigateToEmptyPage,
@@ -303,7 +277,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> with SingleTickerPr
               ),
             ),
             const SizedBox(height: 20),
-            // Диаграмма экранного времени (в виде пирожка)
+            // Диаграмма использования приложений
             SizedBox(
               width: 240,
               height: 240,
@@ -333,7 +307,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> with SingleTickerPr
                     final index = entry.key;
                     final app = entry.value;
                     final angle = _calculateAngle(index, currentData.appUsages, totalMinutes);
-                    final offset = _calculateIconPosition(angle, 60); // Уменьшен радиус для пирожка
+                    final offset = _calculateIconPosition(angle, 60);
 
                     return Positioned(
                       left: offset.dx + 120 - 16,
@@ -433,7 +407,7 @@ class AppUsage {
 class _StepsRingPainter extends CustomPainter {
   final double progress;
   final Color color;
-  final int direction; // 1 для слева направо, -1 для справа налево
+  final int direction;
 
   _StepsRingPainter({
     required this.progress,
@@ -530,34 +504,4 @@ class _AppUsageChartPainter extends CustomPainter {
         oldDelegate.progress != progress ||
         oldDelegate.isPieChart != isPieChart;
   }
-}
-
-class _PyramidPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = const Color(0xFF5DE2CC)
-      ..style = PaintingStyle.fill;
-
-    // Нижний прямоугольник
-    canvas.drawRect(
-      Rect.fromLTRB(0, size.height * 0.6, size.width, size.height),
-      paint,
-    );
-
-    // Средний прямоугольник
-    canvas.drawRect(
-      Rect.fromLTRB(size.width * 0.2, size.height * 0.3, size.width * 0.8, size.height * 0.6),
-      paint,
-    );
-
-    // Верхний прямоугольник
-    canvas.drawRect(
-      Rect.fromLTRB(size.width * 0.4, 0, size.width * 0.6, size.height * 0.3),
-      paint,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

@@ -16,10 +16,9 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
     return Container(
       width: 120,
       height: 120,
-      // Удаляем декорацию с синим цветом
       child: Image.asset(
-        'assets/images/logo.png', // Укажите путь к вашему логотипу
-        fit: BoxFit.contain, // Сохраняет пропорции логотипа
+        'assets/images/logo.png',
+        fit: BoxFit.contain,
       ),
     );
   }
@@ -37,7 +36,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
           child: Column(
             children: [
               const SizedBox(height: 40),
-              _buildLogo(), // Здесь отображается ваше лого
+              _buildLogo(),
               const SizedBox(height: 30),
               const Text(
                 'Для корректной работы приложения\nнеобходимо предоставить доступ\nк следующим разрешениям',
