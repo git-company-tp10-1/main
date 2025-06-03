@@ -140,10 +140,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> with SingleTickerPr
                       fontWeight: FontWeight.w400,
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.person_outline, size: 28),
-                    onPressed: () {},
-                  ),
                 ],
               ),
             ),
@@ -221,7 +217,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> with SingleTickerPr
                       fontWeight: FontWeight.w400,
                     ),
                   ),
-                  const Icon(Icons.directions_walk, size: 24, color: Colors.black),
                 ],
               ),
             ),
@@ -293,32 +288,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> with SingleTickerPr
                           fontWeight: FontWeight.w400,
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      // Пирамидка из трех прямоугольников
-                      CustomPaint(
-                        painter: _PyramidPainter(),
-                        size: const Size(24, 24),
-                      ),
-                      const SizedBox(width: 8),
-                      // Стрелочка без палочки
-                      Transform.rotate(
-                        angle: -pi / 2,
-                        child: const Icon(
-                          Icons.arrow_drop_down,
-                          color: Colors.black54,
-                          size: 24,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
                       // Шарик
-                      Container(
-                        width: 12,
-                        height: 12,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF5DE2CC),
-                          shape: BoxShape.circle,
-                        ),
-                      ),
                     ],
                   ),
                   GestureDetector(

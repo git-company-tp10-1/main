@@ -20,8 +20,8 @@ class MyApp extends StatelessWidget {
           elevation: 0,
         ),
       ),
-      initialRoute: '/auth', // начальный экран — авторизация
-      routes: appRoutes,  // подключаем карту маршрутов
+      initialRoute: '/auth',
+      routes: appRoutes,
     );
   }
 }

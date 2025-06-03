@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'main_screen.dart';
+import '../../service/api_service.dart'; // Импортируем наш сервис для работы с API
 
 class AuthorizeScreen extends StatefulWidget {
   const AuthorizeScreen({super.key});
@@ -10,20 +11,48 @@ class AuthorizeScreen extends StatefulWidget {
 
 class _AuthorizeScreenState extends State<AuthorizeScreen> {
   bool _obscurePassword = true;
+  bool _isLoading = false; // Добавляем индикатор загрузки
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>(); // Ключ для формы
+  final ApiService _apiService = ApiService(); // Сервис для работы с API
 
   final String logoPath = 'assets/images/logo.png';
 
-  InputDecoration _inputDecoration(String hint) {
+  // Валидация email
+  String? _validateEmail(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Введите email';
+    } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+      return 'Введите корректный email';
+    }
+    return null;
+  }
+
+  // Валидация пароля
+  String? _validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Введите пароль';
+    } else if (value.length < 6) {
+      return 'Пароль должен быть не менее 6 символов';
+    }
+    return null;
+  }
+
+  InputDecoration _inputDecoration(String hint, {String? errorText}) {
     return InputDecoration(
       filled: true,
       fillColor: Colors.white,
       hintText: hint,
       hintStyle: const TextStyle(color: Color(0xFF828282)),
+      errorText: errorText,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(width: 1, color: Color(0xFFDFDFDF)),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(width: 1, color: Colors.red),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
     );
@@ -37,9 +66,19 @@ class _AuthorizeScreenState extends State<AuthorizeScreen> {
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
           padding: const EdgeInsets.symmetric(vertical: 15),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8)),
         ),
-        child: Text(
+        child: _isLoading && text == 'Войти'
+            ? const SizedBox(
+          width: 20,
+          height: 20,
+          child: CircularProgressIndicator(
+            color: Colors.black,
+            strokeWidth: 2,
+          ),
+        )
+            : Text(
           text,
           style: const TextStyle(color: Colors.black, fontSize: 16),
         ),
@@ -55,7 +94,8 @@ class _AuthorizeScreenState extends State<AuthorizeScreen> {
         style: OutlinedButton.styleFrom(
           side: const BorderSide(width: 2, color: Color(0xFF456051)),
           padding: const EdgeInsets.symmetric(vertical: 15),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8)),
         ),
         child: Text(
           text,
@@ -65,6 +105,45 @@ class _AuthorizeScreenState extends State<AuthorizeScreen> {
     );
   }
 
+  // Метод для авторизации
+  Future<void> _login() async {
+    if (_formKey.currentState?.validate() != true) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      await _apiService.login(
+        _emailController.text,
+        _passwordController.text,
+      );
+
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const MainScreen(isGuest: false),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString().replaceAll('Exception: ', '')),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -72,94 +151,113 @@ class _AuthorizeScreenState extends State<AuthorizeScreen> {
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              // Контейнер с логотипом
-              Container(
-                width: 143,
-                height: 143,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: Image.asset(
-                    logoPath,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      // Fallback если изображение не загрузится
-                      return Container(
-                        color: const Color(0xFF86DBB2),
-                        child: const Icon(
-                          Icons.person,
-                          size: 60,
-                          color: Colors.white,
-                        ),
-                      );
-                    },
+          child: Form(
+            key: _formKey,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            child: Column(
+              children: [
+                // Контейнер с логотипом
+                Container(
+                  width: 143,
+                  height: 143,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                ),
-              ),
-              const SizedBox(height: 30),
-              const Text(
-                'Авторизация',
-                style: TextStyle(fontSize: 24, color: Colors.black),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Введите адрес электронной почты',
-                style: TextStyle(fontSize: 14, color: Colors.black),
-              ),
-              const SizedBox(height: 30),
-              TextField(
-                controller: _emailController,
-                style: const TextStyle(color: Colors.black),
-                decoration: _inputDecoration('email@domain.com'),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _passwordController,
-                obscureText: _obscurePassword,
-                style: const TextStyle(color: Colors.black),
-                decoration: _inputDecoration('Пароль').copyWith(
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                    ),
-                    onPressed: () =>
-                        setState(() => _obscurePassword = !_obscurePassword),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 30),
-              _authButton('Войти', const Color(0xFF86DBB2), () {
-                // Здесь вход по логике с сервером, если нужно
-              }),
-              const SizedBox(height: 16),
-              _outlinedButton('Регистрация', () {
-                // Навигация к регистрации
-              }),
-              const SizedBox(height: 16),
-              _authButton('Войти как гость', const Color(0xFFF5F2F2), () {
-                // Переход сразу на экран со статистикой
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const MainScreen(
-                      isGuest: true,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Image.asset(
+                      logoPath,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: const Color(0xFF86DBB2),
+                          child: const Icon(
+                            Icons.person,
+                            size: 60,
+                            color: Colors.white,
+                          ),
+                        );
+                      },
                     ),
                   ),
-                );
-              }),
-              const SizedBox(height: 20),
-              TextButton(
-                onPressed: () {},
-                child: const Text(
-                  'Забыли пароль?',
-                  style: TextStyle(color: Colors.black),
                 ),
-              ),
-            ],
+                const SizedBox(height: 30),
+                const Text(
+                  'Авторизация',
+                  style: TextStyle(fontSize: 24, color: Colors.black),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Введите адрес электронной почты',
+                  style: TextStyle(fontSize: 14, color: Colors.black),
+                ),
+                const SizedBox(height: 30),
+
+                // Поле для email
+                TextFormField(
+                  controller: _emailController,
+                  style: const TextStyle(color: Colors.black),
+                  decoration: _inputDecoration('email@domain.com'),
+                  keyboardType: TextInputType.emailAddress,
+                  textInputAction: TextInputAction.next,
+                  validator: _validateEmail,
+                ),
+                const SizedBox(height: 16),
+
+                // Поле для пароля
+                TextFormField(
+                  controller: _passwordController,
+                  obscureText: _obscurePassword,
+                  style: const TextStyle(color: Colors.black),
+                  decoration: _inputDecoration('Пароль').copyWith(
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                        color: Colors.grey,
+                      ),
+                      onPressed: () =>
+                          setState(() => _obscurePassword = !_obscurePassword),
+                    ),
+                  ),
+                  validator: _validatePassword,
+                  textInputAction: TextInputAction.done,
+                  onFieldSubmitted: (_) => _login(),
+                ),
+                const SizedBox(height: 30),
+
+                // Кнопка входа
+                _authButton('Войти', const Color(0xFF86DBB2), _login),
+                const SizedBox(height: 16),
+
+                // Кнопка регистрации
+                _outlinedButton('Регистрация', () {
+                  // Навигация к регистрации
+                }),
+                const SizedBox(height: 16),
+
+                // Кнопка входа как гостя
+                _authButton('Войти как гость', const Color(0xFFF5F2F2), () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const MainScreen(isGuest: true),
+                    ),
+                  );
+                }),
+                const SizedBox(height: 20),
+
+                // Ссылка "Забыли пароль?"
+                TextButton(
+                  onPressed: () {},
+                  child: const Text(
+                    'Забыли пароль?',
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
