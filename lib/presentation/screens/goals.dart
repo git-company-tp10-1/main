@@ -247,7 +247,6 @@ class _GoalsScreenState extends State<GoalsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFEDEDEE),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Center(
@@ -271,7 +270,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                           ElevatedButton(
                             onPressed: _generateAIGoals,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF9EFFD0),
+                              backgroundColor: const Color(0xFFBBDDCC),
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 24, vertical: 12),
                               shape: RoundedRectangleBorder(
@@ -332,15 +331,15 @@ class _GoalsScreenState extends State<GoalsScreen> {
               padding: const EdgeInsets.only(bottom: 16),
               child: FloatingActionButton.extended(
                 onPressed: _generateAIGoals,
-                backgroundColor: const Color(0xFF9EFFD0),
+                backgroundColor: const Color(0xFFBBDDCC),
                 icon: const Icon(Icons.auto_awesome, color: Colors.black),
                 label: const Text('ИИ генерация(тест)', style: TextStyle(color: Colors.black)),
               ),
             ),
           FloatingActionButton(
             onPressed: _addNewGoal,
-            backgroundColor: const Color(0xFF9EFFD0),
-            child: const Icon(Icons.add, color: Colors.black),
+            backgroundColor: const Color(0xFF86DBB2),
+            child: const Icon(Icons.add, color: Colors.white),
           ),
         ],
       ),
