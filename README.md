@@ -58,7 +58,7 @@ YouTrack работает только с включенным VPN
 #
 ДОКУМЕНТАЦИЯ:<br>
 1. Техническое задание [(PDF)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Техническое%20задание%20(1).pdf) [(DOCX)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Техническое%20задание%20(1).docx)
-2. Техническое задание исправленое с разрешения преподавателя [(PDF)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/TZ_ispravlennoe%20(2).pdf) [(DOCX)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/TZ_ispravlennoe%20(2).docx)
+2. Техническое задание исправленое с разрешения преподавателя [(PDF)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Kursovaya_rabota.pdf) [(DOCX)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Kursovaya_rabota.docx)
 3. Курсовая работа [PDF](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Kursovaya_rabota%20(3).pdf) [DOCX](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Kursovaya_rabota%20(3).docx)
 4. Сопроводительное письмо [PDF](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Soprovoditelnoe_pismo.pdf) [DOCX](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Soprovoditelnoe_pismo.docx)
 5. Сопроводительное письмо - копия [PDF](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Soprovoditelnoe_pismo%20-%20копия.pdf) [DOCX](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Soprovoditelnoe_pismo%20-%20копия.docx)
