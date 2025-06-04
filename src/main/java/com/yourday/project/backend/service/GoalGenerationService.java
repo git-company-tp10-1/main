@@ -51,7 +51,7 @@ public class GoalGenerationService {
 
 
 
-        Steps steps = stepsRepository.findTotalStepsByUserIdAndUsageDate(user.getId().toString(), today);
+
 
 
         List<Notes> notes = notesService.getNotesForDate(today, user);
@@ -71,7 +71,6 @@ public class GoalGenerationService {
         // 4. Генерируем цели через AI
         Map<String, Object> aiResponse = generateGoalsViaAI(
                 notesText,
-                steps.getStepCount(),
                 appsText
         );
 
@@ -79,17 +78,17 @@ public class GoalGenerationService {
         return formatForFrontend(aiResponse);
     }
 
-    private Map<String, Object> generateGoalsViaAI(String notes, int steps, String appUsage) throws Exception {
+    private Map<String, Object> generateGoalsViaAI(String notes, String appUsage) throws Exception {
         Map<String, Object> request = new HashMap<>();
         request.put("model", "qwen/qwq-32b:free");
         request.put("temperature", 0.7);
 
         String prompt = String.format(
                 "Сгенерируй 3-5 очень кратких целей на день (максимум 7 слов каждая) Обязательно НА РУССКОМ на основе:\n" +
-                        "Заметки: %s\nШаги: %d\nИспользование приложений: %s\n\n" +
+                        "Заметки: %s\nИспользование приложений: %s\n\n" +
                         "Ответ ТОЛЬКО в формате: {\"goals\":[\"цель 1\",\"цель 2\"]} " +
                         "Без объяснений, комментариев и поля reasoning. НИКАКИХ ЛИШНИХ КОММЕНТАРИЕВ",
-                notes, steps, appUsage
+                notes, appUsage
         );
 
         request.put("messages", List.of(Map.of(
