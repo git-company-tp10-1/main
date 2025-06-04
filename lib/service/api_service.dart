@@ -16,6 +16,8 @@ class ApiService {
   static const String goalsAI = '/goals/AI';
   static const String goalsDelete = '/goals/delete';
   static const String stepsEndpoint = '/steps/save';
+  static const String noteDelete = '/notes/delete';
+
   // Ключ для сохранения токена
   static const String _tokenKey = 'auth_token';
 
@@ -85,13 +87,20 @@ class ApiService {
     final token = await getToken();
     List<String> timeParts = time.split(":");
     DateTime fullDateTime = DateTime(
-      DateTime.now().year,
-      DateTime.now().month,
-      DateTime.now().day,
+      DateTime
+          .now()
+          .year,
+      DateTime
+          .now()
+          .month,
+      DateTime
+          .now()
+          .day,
       int.parse(timeParts[0]),
       int.parse(timeParts[1]),
     );
-    String formattedTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(fullDateTime);
+    String formattedTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(
+        fullDateTime);
 
     final response = await http.post(
       Uri.parse('$baseUrl$notesEndpoint'),
@@ -112,6 +121,45 @@ class ApiService {
       throw Exception('Failed to create note');
     }
   }
+
+
+  Future<void> deleteNote(String time) async {
+    final token = await getToken();
+    List<String> timeParts = time.split(":");
+    DateTime fullDateTime = DateTime(
+      DateTime
+          .now()
+          .year,
+      DateTime
+          .now()
+          .month,
+      DateTime
+          .now()
+          .day,
+      int.parse(timeParts[0]),
+      int.parse(timeParts[1]),
+    );
+    String formattedTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(
+        fullDateTime);
+
+    final response = await http.post(
+      Uri.parse('$baseUrl$noteDelete'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+
+        "time": formattedTime
+      }),
+    );
+    if (response.statusCode == 200) {
+
+    } else {
+      throw Exception('Failed to create note');
+    }
+  }
+
 
   Future<String> goalsSave(String title, bool isGenerate) async {
     final token = await getToken();
@@ -134,6 +182,7 @@ class ApiService {
       throw Exception('Failed to create note');
     }
   }
+
   Future<void> deleteGoal(String title) async {
     final token = await getToken();
     final response = await http.post(
@@ -153,6 +202,7 @@ class ApiService {
       throw Exception('Failed to create note');
     }
   }
+
   Future<List<dynamic>> getGoals() async {
     try {
       final token = await getToken();
@@ -174,6 +224,7 @@ class ApiService {
       throw Exception('Failed to fetch goals: $e');
     }
   }
+
   Future<void> getGoalsAI() async {
     try {
       final token = await getToken();
@@ -214,7 +265,8 @@ class ApiService {
       } catch (e) {
         // Если дата в неправильном формате, используем текущую дату
         formattedDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
-        print('Некорректный формат даты: $date. Используется текущая дата: $formattedDate');
+        print(
+            'Некорректный формат даты: $date. Используется текущая дата: $formattedDate');
       }
 
       final response = await http.post(
@@ -233,7 +285,8 @@ class ApiService {
         return true;
       } else {
         final errorData = jsonDecode(response.body);
-        final errorMessage = errorData['message'] ?? 'Ошибка отправки данных о шагах';
+        final errorMessage = errorData['message'] ??
+            'Ошибка отправки данных о шагах';
         throw Exception(errorMessage);
       }
     } catch (e) {

@@ -279,7 +279,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                               ),
                             ),
                             child: const Text(
-                              'Сгенерировать цели ИИ',
+                              'Сгенерировать цели ИИ для теста',
                               style: TextStyle(color: Colors.black),
                             ),
                           ),

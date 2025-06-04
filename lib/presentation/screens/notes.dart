@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../service/api_service.dart';
 import '../../storage/local_storage.dart';
 
-
 class NotesScreen extends StatefulWidget {
   final String selectedDay;
   final String token;
@@ -22,12 +21,23 @@ class _NotesScreenState extends State<NotesScreen> {
   final LocalStorage _storageService = LocalStorage();
   List<Note> _notes = [];
   bool _isLoading = false;
+  late String _currentDayAbbreviation;
 
   @override
   void initState() {
     super.initState();
+    _currentDayAbbreviation = _getCurrentDayAbbreviation();
     _loadNotes();
   }
+
+  String _getCurrentDayAbbreviation() {
+    final now = DateTime.now();
+    final day = now.weekday;
+    const days = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
+    return days[day - 1];
+  }
+
+  bool get _isToday => widget.selectedDay == _currentDayAbbreviation;
 
   Future<void> _loadNotes() async {
     setState(() => _isLoading = true);
@@ -44,6 +54,13 @@ class _NotesScreenState extends State<NotesScreen> {
   }
 
   Future<void> _addNewNote(Note newNote) async {
+    if (!_isToday) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Можно добавлять заметки только на сегодня')),
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
     try {
       // Отправляем на сервер
@@ -68,6 +85,72 @@ class _NotesScreenState extends State<NotesScreen> {
     }
   }
 
+  Future<void> _deleteNote(Note note) async {
+    if (!_isToday) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Можно удалять только заметки за сегодня')),
+      );
+      return;
+    }
+
+    if (note.day != _currentDayAbbreviation) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Нельзя удалять заметки за другие дни')),
+      );
+      return;
+    }
+
+    final confirmed = await _showDeleteConfirmationDialog();
+
+    if (!confirmed) return;
+
+    setState(() => _isLoading = true);
+    try {
+      // Удаляем с сервера
+      await _apiService.deleteNote(note.time);
+
+      // Удаляем из локального списка
+      final updatedNotes = _notes.where((n) => n.time != note.time).toList();
+      setState(() => _notes = updatedNotes);
+
+      // Сохраняем в локальное хранилище
+      await _storageService.saveNotes(updatedNotes);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Заметка удалена')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ошибка при удалении заметки: $e')),
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<bool> _showDeleteConfirmationDialog() async {
+    return await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Удалить заметку?'),
+        content: const Text('Вы уверены, что хотите удалить эту заметку?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Отмена'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            child: const Text('Удалить', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    ) ?? false;
+  }
+
   @override
   Widget build(BuildContext context) {
     // Фильтруем заметки по выбранному дню
@@ -76,11 +159,13 @@ class _NotesScreenState extends State<NotesScreen> {
     return Scaffold(
       floatingActionButton: _isLoading
           ? const CircularProgressIndicator()
-          : FloatingActionButton(
+          : _isToday
+          ? FloatingActionButton(
         onPressed: () => _showAddNoteDialog(context),
         backgroundColor: const Color(0xFF86DBB2),
         child: const Icon(Icons.add, color: Colors.white),
-      ),
+      )
+          : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       body: Center(
         child: Container(
@@ -114,7 +199,19 @@ class _NotesScreenState extends State<NotesScreen> {
                   ),
                 ),
               ),
-              if (filteredNotes.isEmpty)
+              if (!_isToday)
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 40),
+                  child: Text(
+                    'Редактирование доступно только для текущего дня',
+                    style: TextStyle(
+                      color: Colors.black54,
+                      fontSize: 18,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                )
+              else if (filteredNotes.isEmpty)
                 const Padding(
                   padding: EdgeInsets.only(bottom: 40),
                   child: Text(
@@ -135,6 +232,68 @@ class _NotesScreenState extends State<NotesScreen> {
     );
   }
 
+  Widget _buildNoteItem(Note note) {
+    return GestureDetector(
+      onLongPress: () => _isToday ? _deleteNote(note) : null,
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: 60,
+                  child: Text(
+                    note.time,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 20,
+                      fontFamily: 'Roboto',
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        note.title,
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        note.content,
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            height: 24,
+            decoration: const BoxDecoration(
+              border: Border(
+                bottom: BorderSide(color: Colors.black26, width: 1.0),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   String _getDayName(String dayAbbreviation) {
     final days = {
       'ПН': 'Понедельник',
@@ -148,66 +307,9 @@ class _NotesScreenState extends State<NotesScreen> {
     return days[dayAbbreviation] ?? dayAbbreviation;
   }
 
-  Widget _buildNoteItem(Note note) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                width: 60,
-                child: Text(
-                  note.time,
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontSize: 20,
-                    fontFamily: 'Roboto',
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      note.title,
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      note.content,
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 18,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        Container(
-          height: 24,
-          decoration: const BoxDecoration(
-            border: Border(
-              bottom: BorderSide(color: Colors.black26, width: 1.0),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   void _showAddNoteDialog(BuildContext context) {
+    if (!_isToday) return;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -236,8 +338,8 @@ class AddNoteDialog extends StatefulWidget {
 }
 
 class _AddNoteDialogState extends State<AddNoteDialog> {
-  int _selectedHour = 9;
-  int _selectedMinute = 0;
+  int _selectedHour = DateTime.now().hour;
+  int _selectedMinute = DateTime.now().minute;
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
 
