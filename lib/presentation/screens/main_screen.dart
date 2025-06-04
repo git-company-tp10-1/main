@@ -3,6 +3,7 @@ import 'package:project/presentation/screens/profile.dart';
 import 'package:project/presentation/screens/statistics.dart';
 import 'package:project/presentation/screens/goals.dart';
 import 'package:project/presentation/screens/notes.dart';
+import '../../widgets/week_day_selector.dart';
 
 class MainScreen extends StatefulWidget {
   final bool isGuest;
@@ -14,28 +15,69 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _currentIndex = 2; // По умолчанию открыта "Статистика"
+  int _currentIndex = 2;
+  String _selectedDay = 'ПН';
+
+  String _getAppBarTitle() {
+    switch (_currentIndex) {
+      case 0:
+        return 'Цели';
+      case 1:
+        return 'Блокнот';
+      case 2:
+        return 'Статистика';
+      case 3:
+        return 'Профиль';
+      default:
+        return 'Статистика';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _buildCurrentScreen(),
+      appBar: AppBar(
+        title: Text(
+          _getAppBarTitle(),
+          style: const TextStyle(
+            fontFamily: 'Crimson Text',
+            fontSize: 24,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+        centerTitle: false, // Текст будет слева
+        elevation: 0,
+      ),
+      body: Column(
+        children: [
+          if (_currentIndex == 1 || _currentIndex == 2)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: WeekDaySelector(
+                onDaySelected: (day) => setState(() => _selectedDay = day),
+                initialDay: _selectedDay,
+              ),
+            ),
+          Expanded(child: _buildCurrentScreen()),
+        ],
+      ),
       bottomNavigationBar: _buildBottomNavBar(),
     );
   }
 
+  // Остальной код остается без изменений
   Widget _buildCurrentScreen() {
     switch (_currentIndex) {
       case 0:
         return const GoalsScreen();
       case 1:
-        return const NotesScreen();
+        return NotesScreen(selectedDay: _selectedDay, token: '',);
       case 2:
-        return const StatisticsScreen();
+        return StatisticsScreen(selectedDay: _selectedDay);
       case 3:
         return const ProfileScreen();
       default:
-        return const StatisticsScreen();
+        return StatisticsScreen(selectedDay: _selectedDay);
     }
   }
 

@@ -1,44 +1,82 @@
 import 'package:flutter/material.dart';
+import '../../service/api_service.dart';
+import '../../storage/local_storage.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: const NotesScreen(),
-      debugShowCheckedModeBanner: false,
-    );
-  }
-}
 
 class NotesScreen extends StatefulWidget {
-  const NotesScreen({super.key});
+  final String selectedDay;
+  final String token;
+
+  const NotesScreen({
+    super.key,
+    required this.selectedDay,
+    required this.token,
+  });
 
   @override
   State<NotesScreen> createState() => _NotesScreenState();
 }
 
 class _NotesScreenState extends State<NotesScreen> {
-  final List<Note> _notes = [
+  final ApiService _apiService = ApiService();
+  final LocalStorage _storageService = LocalStorage();
+  List<Note> _notes = [];
+  bool _isLoading = false;
 
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadNotes();
+  }
 
-  void _addNewNote(Note newNote) {
-    setState(() {
-      _notes.add(newNote);
-    });
+  Future<void> _loadNotes() async {
+    setState(() => _isLoading = true);
+    try {
+      // Сначала пробуем загрузить с сервера
+      // Здесь можно добавить загрузку с сервера
+
+      // Затем загружаем из локального хранилища
+      final localNotes = await _storageService.loadNotes();
+      setState(() => _notes = localNotes);
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _addNewNote(Note newNote) async {
+    setState(() => _isLoading = true);
+    try {
+      // Отправляем на сервер
+      await _apiService.notes(
+        newNote.time,
+        newNote.title,
+        newNote.content,
+      );
+
+      // Добавляем в локальный список
+      final updatedNotes = [..._notes, newNote];
+      setState(() => _notes = updatedNotes);
+
+      // Сохраняем в локальное хранилище
+      await _storageService.saveNotes(updatedNotes);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ошибка при сохранении заметки: $e')),
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Фильтруем заметки по выбранному дню
+    final filteredNotes = _notes.where((note) => note.day == widget.selectedDay).toList();
+
     return Scaffold(
-      backgroundColor: Colors.white,
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: _isLoading
+          ? const CircularProgressIndicator()
+          : FloatingActionButton(
         onPressed: () => _showAddNoteDialog(context),
         backgroundColor: const Color(0xFF86DBB2),
         child: const Icon(Icons.add, color: Colors.white),
@@ -51,7 +89,7 @@ class _NotesScreenState extends State<NotesScreen> {
           decoration: BoxDecoration(
             color: const Color(0xFFBBDDCC),
             borderRadius: BorderRadius.circular(36),
-            border: Border.all(color: Colors.black, width: 1),
+            border: Border.all(color: Colors.black26, width: 1),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.2),
@@ -63,11 +101,11 @@ class _NotesScreenState extends State<NotesScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Padding(
-                padding: EdgeInsets.only(top: 19, bottom: 33),
+              Padding(
+                padding: const EdgeInsets.only(top: 19, bottom: 33),
                 child: Text(
-                  'Воскресенье',
-                  style: TextStyle(
+                  _getDayName(widget.selectedDay),
+                  style: const TextStyle(
                     color: Colors.black,
                     fontSize: 32,
                     fontFamily: 'Crimson Text',
@@ -76,13 +114,38 @@ class _NotesScreenState extends State<NotesScreen> {
                   ),
                 ),
               ),
-              ..._notes.map((note) => _buildNoteItem(note)).toList(),
+              if (filteredNotes.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 40),
+                  child: Text(
+                    'Нет заметок на этот день',
+                    style: TextStyle(
+                      color: Colors.black54,
+                      fontSize: 18,
+                    ),
+                  ),
+                )
+              else
+                ...filteredNotes.map((note) => _buildNoteItem(note)).toList(),
               const SizedBox(height: 80),
             ],
           ),
         ),
       ),
     );
+  }
+
+  String _getDayName(String dayAbbreviation) {
+    final days = {
+      'ПН': 'Понедельник',
+      'ВТ': 'Вторник',
+      'СР': 'Среда',
+      'ЧТ': 'Четверг',
+      'ПТ': 'Пятница',
+      'СБ': 'Суббота',
+      'ВС': 'Воскресенье',
+    };
+    return days[dayAbbreviation] ?? dayAbbreviation;
   }
 
   Widget _buildNoteItem(Note note) {
@@ -136,7 +199,7 @@ class _NotesScreenState extends State<NotesScreen> {
           height: 24,
           decoration: const BoxDecoration(
             border: Border(
-              bottom: BorderSide(color: Colors.black, width: 1.0),
+              bottom: BorderSide(color: Colors.black26, width: 1.0),
             ),
           ),
         ),
@@ -149,16 +212,24 @@ class _NotesScreenState extends State<NotesScreen> {
       context: context,
       isScrollControlled: true,
       builder: (context) {
-        return AddNoteDialog(onSave: _addNewNote);
+        return AddNoteDialog(
+          selectedDay: widget.selectedDay,
+          onSave: _addNewNote,
+        );
       },
     );
   }
 }
 
 class AddNoteDialog extends StatefulWidget {
+  final String selectedDay;
   final Function(Note) onSave;
 
-  const AddNoteDialog({super.key, required this.onSave});
+  const AddNoteDialog({
+    super.key,
+    required this.selectedDay,
+    required this.onSave,
+  });
 
   @override
   State<AddNoteDialog> createState() => _AddNoteDialogState();
@@ -193,7 +264,15 @@ class _AddNoteDialogState extends State<AddNoteDialog> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text('Выберите время:', style: TextStyle(fontSize: 18)),
+          Text(
+            'Добавить заметку на ${widget.selectedDay}',
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 20),
+          const Text('Выберите время:', style: TextStyle(fontSize: 16)),
           const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -243,6 +322,7 @@ class _AddNoteDialogState extends State<AddNoteDialog> {
                   time: time,
                   title: _titleController.text,
                   content: _contentController.text,
+                  day: widget.selectedDay,
                 ));
                 Navigator.pop(context);
               }
@@ -270,13 +350,13 @@ class _AddNoteDialogState extends State<AddNoteDialog> {
         itemExtent: 50,
         diameterRatio: 1.5,
         physics: const FixedExtentScrollPhysics(),
+        onSelectedItemChanged: onChanged,
         children: List.generate(max, (index) => Center(
           child: Text(
             index.toString().padLeft(2, '0'),
             style: const TextStyle(fontSize: 24),
           ),
         )),
-        onSelectedItemChanged: onChanged,
       ),
     );
   }
@@ -286,10 +366,28 @@ class Note {
   final String time;
   final String title;
   final String content;
+  final String day;
 
   const Note({
     required this.time,
     required this.title,
     required this.content,
+    required this.day,
   });
+
+  Map<String, dynamic> toJson() => {
+    'time': time,
+    'title': title,
+    'content': content,
+    'day': day,
+  };
+
+  factory Note.fromJson(Map<String, dynamic> json) {
+    return Note(
+      time: json['time'],
+      title: json['title'],
+      content: json['content'],
+      day: json['day'],
+    );
+  }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project/presentation/screens/registration.dart';
 import 'main_screen.dart';
 import '../../service/api_service.dart'; // Импортируем наш сервис для работы с API
 
@@ -233,6 +234,12 @@ class _AuthorizeScreenState extends State<AuthorizeScreen> {
 
                 // Кнопка регистрации
                 _outlinedButton('Регистрация', () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const RegistrationScreen(),
+                    ),
+                  );
                   // Навигация к регистрации
                 }),
                 const SizedBox(height: 16),

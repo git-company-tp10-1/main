@@ -8,7 +8,6 @@ class ProfileScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text('Профиль'),
       ),
       body: SingleChildScrollView(
         child: Padding(

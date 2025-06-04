@@ -3,89 +3,100 @@ import 'dart:math';
 import 'package:intl/intl.dart';
 
 class StatisticsScreen extends StatefulWidget {
-  const StatisticsScreen({super.key});
+  final String selectedDay;
+
+  const StatisticsScreen({super.key, required this.selectedDay});
 
   @override
   State<StatisticsScreen> createState() => _StatisticsScreenState();
 }
 
-class _StatisticsScreenState extends State<StatisticsScreen> with SingleTickerProviderStateMixin {
-  late String _selectedDay;
+class _StatisticsScreenState extends State<StatisticsScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _stepsAnimation;
   late Map<String, DayData> _daysData;
+  late String _currentDisplayedDay;
 
   @override
   void initState() {
     super.initState();
     _initDaysData();
+    _currentDisplayedDay = widget.selectedDay;
 
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1000),
     );
+
     _stepsAnimation = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(
         parent: _animationController,
         curve: Curves.easeInOut,
       ),
     );
+
     _animationController.forward();
   }
 
-  void _initDaysData() {
-    final now = DateTime.now().toLocal();
-    final currentWeekday = now.weekday; // 1 (пн) - 7 (вс)
+  @override
+  void didUpdateWidget(StatisticsScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
 
-    // Русские сокращения дней недели
+    if (oldWidget.selectedDay != widget.selectedDay && _daysData.containsKey(widget.selectedDay)) {
+      _animationController.reset();
+      _animationController.forward();
+      setState(() {
+        _currentDisplayedDay = widget.selectedDay;
+      });
+    }
+  }
+
+  void _initDaysData() {
+    final now = DateTime.now();
     final weekdays = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
-    _selectedDay = weekdays[currentWeekday - 1];
 
     _daysData = {};
 
-    // Генерируем данные для каждого дня текущей недели
     for (int i = 0; i < 7; i++) {
-      final date = now.subtract(Duration(days: currentWeekday - 1 - i));
+      final date = now.subtract(Duration(days: now.weekday - 1 - i));
       _daysData[weekdays[i]] = DayData(
         steps: _generateRandomSteps(),
-        date: DateFormat('d').format(date), // Только число
+        date: DateFormat('d').format(date),
         appUsages: _generateAppUsages(),
       );
     }
   }
 
-  int _generateRandomSteps() {
-    return Random().nextInt(7500);
-  }
+  int _generateRandomSteps() => Random().nextInt(7500) + 1000;
 
   List<AppUsage> _generateAppUsages() {
-    // Пример данных - можно заменить на реальные
-    final apps = [
-      {'name': 'Telegram', 'icon': Icons.send, 'color': const Color(0xFF5DCAE8)},
-      {'name': 'YouTube', 'icon': Icons.play_arrow, 'color': const Color(0xFFFF8A7A)},
-      {'name': 'TikTok', 'icon': Icons.music_note, 'color': const Color(0xFF5A5A5A)},
+    return [
+      AppUsage(
+        name: 'Telegram',
+        icon: Icons.send,
+        color: const Color(0xFF34AADF),
+        minutes: 20 + Random().nextInt(100),
+      ),
+      AppUsage(
+        name: 'YouTube',
+        icon: Icons.play_arrow,
+        color: const Color(0xFFFF0000),
+        minutes: 20 + Random().nextInt(100),
+      ),
+      AppUsage(
+        name: 'TikTok',
+        icon: Icons.music_note,
+        color: const Color(0xFF000000),
+        minutes: 20 + Random().nextInt(100),
+      ),
     ];
-
-    return apps.map((app) => AppUsage(
-      name: app['name'] as String,
-      icon: app['icon'] as IconData,
-      color: app['color'] as Color,
-      minutes: 20 + Random().nextInt(100), // Случайное время использования
-    )).toList();
   }
 
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
-  }
-
-  void _selectDay(String day) {
-    setState(() {
-      _selectedDay = day;
-      _animationController.reset();
-      _animationController.forward();
-    });
   }
 
   void _navigateToEmptyPage() {
@@ -97,7 +108,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
-    final currentData = _daysData[_selectedDay]!;
+    if (!_daysData.containsKey(_currentDisplayedDay)) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final currentData = _daysData[_currentDisplayedDay]!;
     final totalMinutes = currentData.appUsages.fold(0, (sum, app) => sum + app.minutes);
 
     return Scaffold(
@@ -105,82 +120,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> with SingleTickerPr
         child: Column(
           children: [
             const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.only(left: 20, right: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Статистика',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 24,
-                      fontFamily: 'Ledger',
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            // Календарь
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 18),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: _daysData.entries.map((entry) {
-                  return GestureDetector(
-                    onTap: () => _selectDay(entry.key),
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: entry.key == _selectedDay
-                            ? const Color(0xFF86DBB2)
-                            : null,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Column(
-                        children: [
-                          Text(
-                            entry.key,
-                            style: TextStyle(
-                              color: entry.key == _selectedDay
-                                  ? Colors.black
-                                  : const Color(0xFF8F9098),
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            entry.value.date,
-                            style: TextStyle(
-                              color: entry.key == _selectedDay
-                                  ? Colors.black
-                                  : const Color(0xFF494A50),
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ),
             const SizedBox(height: 40),
             // Шаги
             Padding(
@@ -200,47 +139,54 @@ class _StatisticsScreenState extends State<StatisticsScreen> with SingleTickerPr
               ),
             ),
             const SizedBox(height: 20),
-            // Круговая диаграмма шагов
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                Container(
-                  width: 220,
-                  height: 220,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: AnimatedBuilder(
-                    animation: _stepsAnimation,
-                    builder: (context, child) {
-                      return CustomPaint(
-                        painter: _StepsRingPainter(
-                          progress: _stepsAnimation.value * (currentData.steps / 7500),
-                          color: const Color(0xFF86DBB2),
-                          direction: -1,
+            // Круговая диаграмма шагов (изменена анимация)
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 500),
+              transitionBuilder: (Widget child, Animation<double> animation) {
+                return FadeTransition(opacity: animation, child: child);
+              },
+              child: Stack(
+                key: ValueKey<String>(_currentDisplayedDay),
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    width: 220,
+                    height: 220,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
                         ),
-                        size: const Size(220, 220),
-                      );
-                    },
+                      ],
+                    ),
+                    child: AnimatedBuilder(
+                      animation: _stepsAnimation,
+                      builder: (context, child) {
+                        return CustomPaint(
+                          painter: _StepsRingPainter(
+                            progress: _stepsAnimation.value * (currentData.steps / 7500),
+                            color: const Color(0xFF86DBB2),
+                            direction: -1,
+                          ),
+                          size: const Size(220, 220),
+                        );
+                      },
+                    ),
                   ),
-                ),
-                Text(
-                  currentData.steps.toString(),
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontSize: 32,
-                    fontWeight: FontWeight.w700,
+                  Text(
+                    currentData.steps.toString(),
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 32,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             const SizedBox(height: 10),
             const Text(
@@ -278,59 +224,66 @@ class _StatisticsScreenState extends State<StatisticsScreen> with SingleTickerPr
             ),
             const SizedBox(height: 20),
             // Диаграмма использования приложений
-            SizedBox(
-              width: 240,
-              height: 240,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  AnimatedBuilder(
-                    animation: _animationController,
-                    builder: (context, child) {
-                      return CustomPaint(
-                        painter: _AppUsageChartPainter(
-                          appUsages: currentData.appUsages,
-                          totalMinutes: totalMinutes,
-                          colors: const [
-                            Color(0xFF5DE2CC),
-                            Color(0xFF7EF7BD),
-                            Color(0xFFABFFD6),
-                          ],
-                          progress: _animationController.value,
-                          isPieChart: true,
-                        ),
-                        size: const Size(240, 240),
-                      );
-                    },
-                  ),
-                  ...currentData.appUsages.asMap().entries.map((entry) {
-                    final index = entry.key;
-                    final app = entry.value;
-                    final angle = _calculateAngle(index, currentData.appUsages, totalMinutes);
-                    final offset = _calculateIconPosition(angle, 60);
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 500),
+              transitionBuilder: (Widget child, Animation<double> animation) {
+                return FadeTransition(opacity: animation, child: child);
+              },
+              child: SizedBox(
+                key: ValueKey<String>(_currentDisplayedDay),
+                width: 240,
+                height: 240,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    AnimatedBuilder(
+                      animation: _animationController,
+                      builder: (context, child) {
+                        return CustomPaint(
+                          painter: _AppUsageChartPainter(
+                            appUsages: currentData.appUsages,
+                            totalMinutes: totalMinutes,
+                            colors: const [
+                              Color(0xFF5DE2CC),
+                              Color(0xFF7EF7BD),
+                              Color(0xFFABFFD6),
+                            ],
+                            progress: _animationController.value,
+                            isPieChart: true,
+                          ),
+                          size: const Size(240, 240),
+                        );
+                      },
+                    ),
+                    ...currentData.appUsages.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final app = entry.value;
+                      final angle = _calculateAngle(index, currentData.appUsages, totalMinutes);
+                      final offset = _calculateIconPosition(angle, 60);
 
-                    return Positioned(
-                      left: offset.dx + 120 - 16,
-                      top: offset.dy + 120 - 16,
-                      child: Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
+                      return Positioned(
+                        left: offset.dx + 120 - 16,
+                        top: offset.dy + 120 - 16,
+                        child: Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Icon(app.icon, size: 20, color: app.color),
                         ),
-                        child: Icon(app.icon, size: 20, color: app.color),
-                      ),
-                    );
-                  }).toList(),
-                ],
+                      );
+                    }).toList(),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 20),
