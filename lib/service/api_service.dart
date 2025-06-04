@@ -24,13 +24,13 @@ class ApiService {
         Uri.parse('$baseUrl$registerEndpoint'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'username': username,
+          'name': username,
           'email': email,
           'password': password
         }),
       );
 
-      if (response.statusCode != 200) {
+      if (response.statusCode != 201) {
         final errorData = jsonDecode(response.body);
         final errorMessage = errorData['message'] ?? 'Ошибка регистрации';
         throw Exception(errorMessage);

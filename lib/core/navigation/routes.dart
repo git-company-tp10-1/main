@@ -19,7 +19,7 @@ final Map<String, WidgetBuilder> appRoutes = {
   '/notes': (context) => const NotesScreen(selectedDay: '', token: '',),
   '/recovery': (context) => const PasswordRecoveryScreen(),
   '/profile': (context) => const ProfileScreen(),
-  '/stats': (context) => const StatisticsScreen(),
+  '/stats': (context) => const StatisticsScreen(selectedDay: '',),
 };
 
 

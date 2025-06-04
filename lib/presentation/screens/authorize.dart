@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:project/presentation/screens/registration.dart';
 import 'main_screen.dart';
-import '../../service/api_service.dart'; // Импортируем наш сервис для работы с API
+import '../../service/api_service.dart';
+
 
 class AuthorizeScreen extends StatefulWidget {
   const AuthorizeScreen({super.key});
@@ -12,15 +13,14 @@ class AuthorizeScreen extends StatefulWidget {
 
 class _AuthorizeScreenState extends State<AuthorizeScreen> {
   bool _obscurePassword = true;
-  bool _isLoading = false; // Добавляем индикатор загрузки
+  bool _isLoading = false;
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _formKey = GlobalKey<FormState>(); // Ключ для формы
-  final ApiService _apiService = ApiService(); // Сервис для работы с API
+  final _formKey = GlobalKey<FormState>();
+  final ApiService _apiService = ApiService();
 
   final String logoPath = 'assets/images/logo.png';
 
-  // Валидация email
   String? _validateEmail(String? value) {
     if (value == null || value.isEmpty) {
       return 'Введите email';
@@ -30,7 +30,6 @@ class _AuthorizeScreenState extends State<AuthorizeScreen> {
     return null;
   }
 
-  // Валидация пароля
   String? _validatePassword(String? value) {
     if (value == null || value.isEmpty) {
       return 'Введите пароль';
@@ -106,7 +105,6 @@ class _AuthorizeScreenState extends State<AuthorizeScreen> {
     );
   }
 
-  // Метод для авторизации
   Future<void> _login() async {
     if (_formKey.currentState?.validate() != true) return;
 
@@ -138,6 +136,16 @@ class _AuthorizeScreenState extends State<AuthorizeScreen> {
     }
   }
 
+  // Метод для перехода на экран регистрации
+  void _navigateToRegistration() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const RegistrationScreen(),
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -157,7 +165,6 @@ class _AuthorizeScreenState extends State<AuthorizeScreen> {
             autovalidateMode: AutovalidateMode.onUserInteraction,
             child: Column(
               children: [
-                // Контейнер с логотипом
                 Container(
                   width: 143,
                   height: 143,
@@ -194,7 +201,6 @@ class _AuthorizeScreenState extends State<AuthorizeScreen> {
                 ),
                 const SizedBox(height: 30),
 
-                // Поле для email
                 TextFormField(
                   controller: _emailController,
                   style: const TextStyle(color: Colors.black),
@@ -205,7 +211,6 @@ class _AuthorizeScreenState extends State<AuthorizeScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // Поле для пароля
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
@@ -228,23 +233,13 @@ class _AuthorizeScreenState extends State<AuthorizeScreen> {
                 ),
                 const SizedBox(height: 30),
 
-                // Кнопка входа
                 _authButton('Войти', const Color(0xFF86DBB2), _login),
                 const SizedBox(height: 16),
 
-                // Кнопка регистрации
-                _outlinedButton('Регистрация', () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const RegistrationScreen(),
-                    ),
-                  );
-                  // Навигация к регистрации
-                }),
+                // Обновленная кнопка регистрации с навигацией
+                _outlinedButton('Регистрация', _navigateToRegistration),
                 const SizedBox(height: 16),
 
-                // Кнопка входа как гостя
                 _authButton('Войти как гость', const Color(0xFFF5F2F2), () {
                   Navigator.pushReplacement(
                     context,
@@ -255,7 +250,6 @@ class _AuthorizeScreenState extends State<AuthorizeScreen> {
                 }),
                 const SizedBox(height: 20),
 
-                // Ссылка "Забыли пароль?"
                 TextButton(
                   onPressed: () {},
                   child: const Text(
