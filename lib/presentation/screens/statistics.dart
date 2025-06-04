@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:intl/intl.dart';
+import 'dart:async';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../service/api_service.dart';
 
 class StatisticsScreen extends StatefulWidget {
   final String selectedDay;
@@ -17,12 +23,21 @@ class _StatisticsScreenState extends State<StatisticsScreen>
   late Animation<double> _stepsAnimation;
   late Map<String, DayData> _daysData;
   late String _currentDisplayedDay;
+  Timer? _stepTimer;
+  int _currentSteps = 0;
+  late String _todayWeekday;
+  List<Map<String, dynamic>> _pendingStepsData = [];
+  bool _isSyncing = false;
 
   @override
   void initState() {
     super.initState();
     _initDaysData();
     _currentDisplayedDay = widget.selectedDay;
+
+    final now = DateTime.now();
+    final weekdays = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
+    _todayWeekday = weekdays[now.weekday - 1];
 
     _animationController = AnimationController(
       vsync: this,
@@ -37,31 +52,144 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     );
 
     _animationController.forward();
+
+    _loadPendingData().then((_) {
+      if (_currentDisplayedDay == _todayWeekday) {
+        _startStepCounter();
+      }
+      _trySyncPendingData();
+    });
+  }
+
+  Future<void> _loadPendingData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final pendingDataString = prefs.getString('pending_steps');
+    if (pendingDataString != null) {
+      setState(() {
+        _pendingStepsData = List<Map<String, dynamic>>.from(
+            jsonDecode(pendingDataString));
+      });
+    }
+  }
+
+  Future<void> _trySyncPendingData() async {
+    if (_pendingStepsData.isEmpty || _isSyncing) return;
+
+    setState(() => _isSyncing = true);
+
+    final apiService = ApiService();
+    for (final data in _pendingStepsData.toList()) {
+      try {
+        // Если дата не указана, используем текущую дату в формате yyyy-MM-dd
+        final date = data['date'] as String? ??
+            DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+        final success = await apiService.sendSteps(
+          steps: data['steps'] as int,
+          date: date,
+          day: data['day'] as String? ?? '', // обработка дня, если он есть
+        );
+
+        if (success) {
+          setState(() => _pendingStepsData.remove(data));
+          await _savePendingData();
+        }
+      } catch (e) {
+        print('Ошибка при синхронизации: $e');
+        // Можно добавить дополнительную логику обработки ошибок,
+        // например, повторную попытку после задержки
+      }
+    }
+
+    setState(() => _isSyncing = false);
+  }
+
+  Future<void> _savePendingData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('pending_steps', jsonEncode(_pendingStepsData));
+  }
+
+  void _startStepCounter() {
+    _stepTimer?.cancel();
+    _stepTimer = Timer.periodic(const Duration(seconds: 90), (timer) {
+      setState(() {
+        _currentSteps += 2 + Random().nextInt(2);
+        _updateCurrentDaySteps();
+      });
+    });
+  }
+
+  Future<void> _updateCurrentDaySteps() async {
+    if (_daysData.containsKey(_currentDisplayedDay)) {
+      setState(() {
+        _daysData[_currentDisplayedDay] = DayData(
+          steps: _currentSteps,
+          date: _daysData[_currentDisplayedDay]!.date,
+          appUsages: _daysData[_currentDisplayedDay]!.appUsages,
+        );
+      });
+
+      final data = {
+        'day': _currentDisplayedDay,
+        'steps': _currentSteps,
+        'date': _daysData[_currentDisplayedDay]!.date,
+        'timestamp': DateTime.now().toIso8601String(),
+      };
+
+      try {
+        final apiService = ApiService();
+        final success = await apiService.sendSteps(
+          day: _currentDisplayedDay,
+          steps: _currentSteps,
+          date: _daysData[_currentDisplayedDay]!.date,
+        );
+
+        if (!success) {
+          setState(() => _pendingStepsData.add(data));
+          await _savePendingData();
+        }
+      } catch (e) {
+        setState(() => _pendingStepsData.add(data));
+        await _savePendingData();
+      }
+    }
   }
 
   @override
   void didUpdateWidget(StatisticsScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-
     if (oldWidget.selectedDay != widget.selectedDay && _daysData.containsKey(widget.selectedDay)) {
       _animationController.reset();
       _animationController.forward();
       setState(() {
         _currentDisplayedDay = widget.selectedDay;
+        _currentSteps = _daysData[_currentDisplayedDay]!.steps;
+
+        if (oldWidget.selectedDay == _todayWeekday) {
+          _stepTimer?.cancel();
+        }
+
+        if (_currentDisplayedDay == _todayWeekday) {
+          _startStepCounter();
+        }
       });
+      _updateCurrentDaySteps();
     }
   }
 
   void _initDaysData() {
     final now = DateTime.now();
     final weekdays = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
+    final todayWeekdayIndex = now.weekday - 1;
 
     _daysData = {};
 
     for (int i = 0; i < 7; i++) {
       final date = now.subtract(Duration(days: now.weekday - 1 - i));
+      final steps = i == todayWeekdayIndex ? _currentSteps : _generateRandomSteps();
+
       _daysData[weekdays[i]] = DayData(
-        steps: _generateRandomSteps(),
+        steps: steps,
         date: DateFormat('d').format(date),
         appUsages: _generateAppUsages(),
       );
@@ -96,6 +224,8 @@ class _StatisticsScreenState extends State<StatisticsScreen>
   @override
   void dispose() {
     _animationController.dispose();
+    _stepTimer?.cancel();
+    _updateCurrentDaySteps();
     super.dispose();
   }
 
@@ -120,14 +250,24 @@ class _StatisticsScreenState extends State<StatisticsScreen>
         child: Column(
           children: [
             const SizedBox(height: 20),
-            const SizedBox(height: 40),
-            // Шаги
+            if (_pendingStepsData.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Chip(
+                  label: Text(
+                    'Ожидает синхронизации: ${_pendingStepsData.length}',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  backgroundColor: Colors.orange,
+                ),
+              ),
+            const SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 40),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
+                children: const [
+                  Text(
                     'Шаги',
                     style: TextStyle(
                       fontSize: 20,
@@ -139,7 +279,6 @@ class _StatisticsScreenState extends State<StatisticsScreen>
               ),
             ),
             const SizedBox(height: 20),
-            // Круговая диаграмма шагов (изменена анимация)
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 500),
               transitionBuilder: (Widget child, Animation<double> animation) {
@@ -197,7 +336,6 @@ class _StatisticsScreenState extends State<StatisticsScreen>
               ),
             ),
             const SizedBox(height: 40),
-            // Статистика приложений
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 40),
               child: Row(
@@ -223,7 +361,6 @@ class _StatisticsScreenState extends State<StatisticsScreen>
               ),
             ),
             const SizedBox(height: 20),
-            // Диаграмма использования приложений
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 500),
               transitionBuilder: (Widget child, Animation<double> animation) {

@@ -18,38 +18,43 @@ class WeekDaySelector extends StatefulWidget {
 class _WeekDaySelectorState extends State<WeekDaySelector> {
   late String _selectedDay;
   late Map<String, String> _daysData;
+  late int _currentDayIndex; // Индекс текущего дня недели (0-6)
+  late List<String> _weekdays;
 
   @override
   void initState() {
     super.initState();
+    _weekdays = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
     _selectedDay = widget.initialDay;
     _initDaysData();
   }
 
   void _initDaysData() {
     final now = DateTime.now();
-    final weekdays = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
-
-    // Находим индекс текущего дня недели (1-7, где 1 - понедельник)
-    int currentWeekdayIndex = now.weekday - 1;
+    // Находим индекс текущего дня недели (0-6, где 0 - понедельник)
+    _currentDayIndex = now.weekday - 1;
 
     _daysData = {};
     for (int i = 0; i < 7; i++) {
       // Вычисляем дату для каждого дня недели
-      final date = now.add(Duration(days: i - currentWeekdayIndex));
-      _daysData[weekdays[i]] = DateFormat('d').format(date);
+      final date = now.add(Duration(days: i - _currentDayIndex));
+      _daysData[_weekdays[i]] = DateFormat('d').format(date);
     }
 
-    // Убедимся, что selectedDay соответствует одному из доступных дней
+    // Убедимся, что selectedDay соответствует текущему дню
     if (!_daysData.containsKey(_selectedDay)) {
-      _selectedDay = weekdays[currentWeekdayIndex];
+      _selectedDay = _weekdays[_currentDayIndex];
       widget.onDaySelected(_selectedDay);
     }
   }
 
   void _selectDay(String day) {
-    setState(() => _selectedDay = day);
-    widget.onDaySelected(day);
+    final dayIndex = _weekdays.indexOf(day);
+    // Разрешаем выбор только текущего и предыдущих дней
+    if (dayIndex <= _currentDayIndex) {
+      setState(() => _selectedDay = day);
+      widget.onDaySelected(day);
+    }
   }
 
   @override
@@ -71,12 +76,16 @@ class _WeekDaySelectorState extends State<WeekDaySelector> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: _daysData.entries.map((entry) {
+          final dayIndex = _weekdays.indexOf(entry.key);
+          final isSelectable = dayIndex <= _currentDayIndex;
+          final isSelected = entry.key == _selectedDay;
+
           return GestureDetector(
-            onTap: () => _selectDay(entry.key),
+            onTap: isSelectable ? () => _selectDay(entry.key) : null,
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: entry.key == _selectedDay
+                color: isSelected
                     ? const Color(0xFF86DBB2)
                     : null,
                 borderRadius: BorderRadius.circular(16),
@@ -86,9 +95,11 @@ class _WeekDaySelectorState extends State<WeekDaySelector> {
                   Text(
                     entry.key,
                     style: TextStyle(
-                      color: entry.key == _selectedDay
+                      color: isSelected
                           ? Colors.black
-                          : const Color(0xFF8F9098),
+                          : isSelectable
+                          ? const Color(0xFF8F9098)
+                          : const Color(0xFF8F9098).withOpacity(0.4),
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
                     ),
@@ -97,9 +108,11 @@ class _WeekDaySelectorState extends State<WeekDaySelector> {
                   Text(
                     entry.value,
                     style: TextStyle(
-                      color: entry.key == _selectedDay
+                      color: isSelected
                           ? Colors.black
-                          : const Color(0xFF494A50),
+                          : isSelectable
+                          ? const Color(0xFF494A50)
+                          : const Color(0xFF494A50).withOpacity(0.4),
                       fontSize: 16,
                       fontWeight: FontWeight.w400,
                     ),

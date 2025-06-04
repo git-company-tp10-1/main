@@ -12,7 +12,8 @@ class ApiService {
   static const String registerEndpoint = '/auth/register';
   static const String loginEndpoint = '/auth/login';
   static const String notesEndpoint = '/notes/save';
-  static const String goals_saveEndpoint = '/goals/save';
+  static const String goals_SaveEndpoint = '/goals/save';
+  static const String stepsEndpoint = '/steps/save';
   // Ключ для сохранения токена
   static const String _tokenKey = 'auth_token';
 
@@ -113,7 +114,7 @@ class ApiService {
   Future<String> goalsSave(String title, bool isGenerate) async {
     final token = await getToken();
     final response = await http.post(
-      Uri.parse('$baseUrl$goals_saveEndpoint'),
+      Uri.parse('$baseUrl$goals_SaveEndpoint'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
@@ -151,6 +152,54 @@ class ApiService {
       }
     } catch (e) {
       throw Exception('Failed to fetch goals: $e');
+    }
+  }
+
+  Future<bool> sendSteps({
+    required String day,
+    required int steps,
+    required String date, // Этот параметр теперь будет использоваться
+  }) async {
+    try {
+      final token = await getToken();
+      if (token == null) {
+        throw Exception('Пользователь не авторизован');
+      }
+
+      // Проверяем и форматируем дату
+      String formattedDate;
+      try {
+        // Пытаемся распарсить входную дату (если она уже в правильном формате, оставляем как есть)
+        final parsedDate = DateTime.parse(date);
+        formattedDate = DateFormat('yyyy-MM-dd').format(parsedDate);
+      } catch (e) {
+        // Если дата в неправильном формате, используем текущую дату
+        formattedDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+        print('Некорректный формат даты: $date. Используется текущая дата: $formattedDate');
+      }
+
+      final response = await http.post(
+        Uri.parse('$baseUrl$stepsEndpoint'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'stepCount': steps,
+          'usageDate': formattedDate,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        final errorData = jsonDecode(response.body);
+        final errorMessage = errorData['message'] ?? 'Ошибка отправки данных о шагах';
+        throw Exception(errorMessage);
+      }
+    } catch (e) {
+      print('Ошибка при отправке шагов: $e');
+      return false;
     }
   }
 
