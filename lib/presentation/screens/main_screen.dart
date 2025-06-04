@@ -8,11 +8,13 @@ import '../../widgets/week_day_selector.dart';
 class MainScreen extends StatefulWidget {
   final bool isGuest;
   final String username;
+  final String? userEmail;
 
   const MainScreen({
     super.key,
     this.isGuest = false,
     required this.username,
+    this.userEmail,
   });
 
   @override
@@ -28,14 +30,15 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     _selectedDay = _getCurrentWeekDay();
+    print('Initialized MainScreen with email: ${widget.userEmail}'); // Для отладки
   }
 
   String _getCurrentWeekDay() {
     final now = DateTime.now();
     final weekDays = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
-    // DateTime.now().weekday возвращает 1-7 (1=понедельник, 7=воскресенье)
     return weekDays[now.weekday - 1];
   }
+
   String _getAppBarTitle() {
     switch (_currentIndex) {
       case 0: return 'Цели';
@@ -99,7 +102,7 @@ class _MainScreenState extends State<MainScreen> {
                 NotesScreen(selectedDay: _selectedDay, token: ''),
                 StatisticsScreen(selectedDay: _selectedDay),
                 ProfileScreen(
-                  userEmail: widget.isGuest ? '' : '${widget.username}@example.com',
+                  userEmail: widget.isGuest ? null : widget.userEmail, // Исправлено!
                 ),
               ],
             ),
@@ -138,7 +141,7 @@ class _MainScreenState extends State<MainScreen> {
           ElevatedButton(
             onPressed: () {
               Navigator.pop(ctx);
-              Navigator.pushReplacementNamed(context, '/auth');
+              Navigator.pushReplacementNamed(ctx, '/auth');
             },
             child: const Text('Зарегистрироваться'),
           ),

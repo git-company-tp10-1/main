@@ -75,7 +75,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         MaterialPageRoute(
           builder: (context) => MainScreen(
             isGuest: false,
-            username: username, // Передаем имя пользователя
+            username: username, userEmail: '', // Передаем имя пользователя
           ),
         ),
       );

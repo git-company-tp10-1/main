@@ -11,7 +11,7 @@ import '../../presentation/screens/statistics.dart';
 
 
 final Map<String, WidgetBuilder> appRoutes = {
-  '/': (context) => const MainScreen(username: '',),
+  '/': (context) => const MainScreen(username: '', userEmail: '',),
   '/auth': (context) => const AuthorizeScreen(),
   '/registration': (context) => const RegistrationScreen(),
   '/permission': (context) => const PermissionsScreen(),

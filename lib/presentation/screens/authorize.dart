@@ -130,7 +130,8 @@ class _AuthorizeScreenState extends State<AuthorizeScreen> {
         MaterialPageRoute(
           builder: (context) => MainScreen(
             isGuest: false,
-            username: username, // Передаем имя пользователя
+            username: username,
+            userEmail: _emailController.text, // Передаем email
           ),
         ),
       );
@@ -250,7 +251,7 @@ class _AuthorizeScreenState extends State<AuthorizeScreen> {
                     MaterialPageRoute(
                       builder: (context) => const MainScreen(
                         isGuest: true,
-                        username: 'Гость',
+                        username: 'Гость', userEmail: '',
                       ),
                     ),
                   );
