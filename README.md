@@ -59,14 +59,18 @@ YouTrack работает только с включенным VPN
 ДОКУМЕНТАЦИЯ:<br>
 1. Техническое задание [(PDF)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Техническое%20задание%20(1).pdf) [(DOCX)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Техническое%20задание%20(1).docx)
 2. Техническое задание исправленое с разрешения преподавателя [(PDF)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/TZ_ispravlennoe%20(2).pdf) [(DOCX)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/TZ_ispravlennoe%20(2).docx)
-3. Предпроектное исследование  [(PDF)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Predproektnoe_issledovanie.pdf) [(DOCX)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Predproektnoe_issledovanie.docx)
-4. [Схема API](http://193.233.103.34:8080/swagger-ui/index.html#/)
-5. [ER и UML диаграммы](https://github.com/git-company-tp10-1/main/tree/main/Documentation/charts)
-6. [UML диаграммы на Miro](https://miro.com/app/board/uXjVIJDT77E=/?share_link_id=931326801804)
-7. [Пользоватские сценарии](https://miro.com/app/board/uXjVIM5DcKg=/?share_link_id=267269145843)
-8. Презентация ТЗ [PDF](https://github.com/git-company-tp10-1/main/blob/main/Documentation/презентация%20ТЗ.pdf)  [PPTX](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Презентация%20ТЗ%20.pptx)
-9. Презентация 2 этапа [PDF](https://github.com/git-company-tp10-1/main/blob/main/Documentation/презентация%20статуса%20проекта.pdf)  [PPTX](https://github.com/git-company-tp10-1/main/blob/main/Documentation/презентация%20статуса%20проекта.pptx)
-10. PM отчёт [(PDF)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/pm_otchet.pdf) [(DOCX)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/pm_otchet.docx)
+3. Курсовая работа [PDF](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Kursovaya_rabota.pdf) [DOCX](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Kursovaya_rabota%20(2).docx)
+4. Сопроводительное письмо [PDF](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Soprovoditelnoe_pismo.pdf) [DOCX](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Soprovoditelnoe_pismo.docx)
+5. Сопроводительное письмо - копия [PDF](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Soprovoditelnoe_pismo%20-%20копия.pdf) [DOCX](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Soprovoditelnoe_pismo%20-%20копия.docx)
+6. Предпроектное исследование  [(PDF)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Predproektnoe_issledovanie.pdf) [(DOCX)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Predproektnoe_issledovanie.docx)
+7. [Схема API](http://193.233.103.34:8080/swagger-ui/index.html#/)
+8. [ER и UML диаграммы](https://github.com/git-company-tp10-1/main/tree/main/Documentation/charts)
+9. [UML диаграммы на Miro](https://miro.com/app/board/uXjVIJDT77E=/?share_link_id=931326801804)
+10. [Пользоватские сценарии](https://miro.com/app/board/uXjVIM5DcKg=/?share_link_id=267269145843)
+11. Презентация ТЗ [PDF](https://github.com/git-company-tp10-1/main/blob/main/Documentation/презентация%20ТЗ.pdf)  [PPTX](https://github.com/git-company-tp10-1/main/blob/main/Documentation/Презентация%20ТЗ%20.pptx)
+12. Презентация 2 этапа [PDF](https://github.com/git-company-tp10-1/main/blob/main/Documentation/презентация%20статуса%20проекта.pdf)  [PPTX](https://github.com/git-company-tp10-1/main/blob/main/Documentation/презентация%20статуса%20проекта.pptx)
+13. Презентация Курсовой [PDF](https://github.com/git-company-tp10-1/main/blob/main/Documentation/preza_TP%20(final).pdf)[PPTX](https://github.com/git-company-tp10-1/main/blob/main/Documentation/preza_TP%20(finall).pptx)
+14. PM отчёт [(PDF)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/pm_otchet.pdf) [(DOCX)](https://github.com/git-company-tp10-1/main/blob/main/Documentation/pm_otchet.docx)
 
 
 #
@@ -80,6 +84,10 @@ YouTrack работает только с включенным VPN
 1. [Видео с презентацией ТЗ](https://rutube.ru/video/06b595e771d685a977f3aaa0610ee305/)
 2. [Видео с презентацией 2 этапа](https://rutube.ru/video/1d0c66cc5963d2b91f6c16c028e8ca5c/)
 3. [Видео-демонстрация одного пользовательского пути](https://rutube.ru/shorts/424a8e927422148d38165a3a711c2bbd/)
+4. [Видео-инструкция пользования нашего приложения](https://rutube.ru/video/8ff69460a25cdaaf2285f18cab50d0e0/)
+
+#
+[Наше приложение YourDay](https://github.com/git-company-tp10-1/main/blob/main/Documentation/app-release.apk)
 
 
 #
