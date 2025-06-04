@@ -7,8 +7,13 @@ import '../../widgets/week_day_selector.dart';
 
 class MainScreen extends StatefulWidget {
   final bool isGuest;
+  final String username;
 
-  const MainScreen({super.key, this.isGuest = false});
+  const MainScreen({
+    super.key,
+    this.isGuest = false,
+    required this.username,
+  });
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -16,21 +21,28 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 2;
-  String _selectedDay = 'ПН';
+  late String _selectedDay;
   final PageController _pageController = PageController(initialPage: 2);
 
+  @override
+  void initState() {
+    super.initState();
+    _selectedDay = _getCurrentWeekDay();
+  }
+
+  String _getCurrentWeekDay() {
+    final now = DateTime.now();
+    final weekDays = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
+    // DateTime.now().weekday возвращает 1-7 (1=понедельник, 7=воскресенье)
+    return weekDays[now.weekday - 1];
+  }
   String _getAppBarTitle() {
     switch (_currentIndex) {
-      case 0:
-        return 'Цели';
-      case 1:
-        return 'Блокнот';
-      case 2:
-        return 'Статистика';
-      case 3:
-        return 'Профиль';
-      default:
-        return 'Статистика';
+      case 0: return 'Цели';
+      case 1: return 'Блокнот';
+      case 2: return 'Статистика';
+      case 3: return 'Профиль';
+      default: return 'Статистика';
     }
   }
 
@@ -86,7 +98,9 @@ class _MainScreenState extends State<MainScreen> {
                 GoalsScreen(),
                 NotesScreen(selectedDay: _selectedDay, token: ''),
                 StatisticsScreen(selectedDay: _selectedDay),
-                const ProfileScreen(),
+                ProfileScreen(
+                  userEmail: widget.isGuest ? '' : '${widget.username}@example.com',
+                ),
               ],
             ),
           ),

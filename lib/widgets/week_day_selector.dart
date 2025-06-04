@@ -18,8 +18,10 @@ class WeekDaySelector extends StatefulWidget {
 class _WeekDaySelectorState extends State<WeekDaySelector> {
   late String _selectedDay;
   late Map<String, String> _daysData;
-  late int _currentDayIndex; // Индекс текущего дня недели (0-6)
+  late int _currentDayIndex;
   late List<String> _weekdays;
+  late Map<String, AnimationController> _animationControllers;
+  late Map<String, Animation<double>> _opacityAnimations;
 
   @override
   void initState() {
@@ -29,19 +31,43 @@ class _WeekDaySelectorState extends State<WeekDaySelector> {
     _initDaysData();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Инициализируем анимационные контроллеры
+    _animationControllers = {};
+    _opacityAnimations = {};
+
+    for (final day in _weekdays) {
+      _animationControllers[day] = AnimationController(
+        duration: const Duration(milliseconds: 500),
+        vsync: Scaffold.of(context),
+      );
+      _opacityAnimations[day] = Tween<double>(begin: 1.0, end: 0.4).animate(
+        CurvedAnimation(
+          parent: _animationControllers[day]!,
+          curve: Curves.easeInOut,
+        ),
+      );
+
+      // Запускаем анимацию для неактивных дней
+      final dayIndex = _weekdays.indexOf(day);
+      if (dayIndex > _currentDayIndex) {
+        _animationControllers[day]!.forward();
+      }
+    }
+  }
+
   void _initDaysData() {
     final now = DateTime.now();
-    // Находим индекс текущего дня недели (0-6, где 0 - понедельник)
     _currentDayIndex = now.weekday - 1;
 
     _daysData = {};
     for (int i = 0; i < 7; i++) {
-      // Вычисляем дату для каждого дня недели
       final date = now.add(Duration(days: i - _currentDayIndex));
       _daysData[_weekdays[i]] = DateFormat('d').format(date);
     }
 
-    // Убедимся, что selectedDay соответствует текущему дню
     if (!_daysData.containsKey(_selectedDay)) {
       _selectedDay = _weekdays[_currentDayIndex];
       widget.onDaySelected(_selectedDay);
@@ -50,7 +76,6 @@ class _WeekDaySelectorState extends State<WeekDaySelector> {
 
   void _selectDay(String day) {
     final dayIndex = _weekdays.indexOf(day);
-    // Разрешаем выбор только текущего и предыдущих дней
     if (dayIndex <= _currentDayIndex) {
       setState(() => _selectedDay = day);
       widget.onDaySelected(day);
@@ -58,9 +83,17 @@ class _WeekDaySelectorState extends State<WeekDaySelector> {
   }
 
   @override
+  void dispose() {
+    for (final controller in _animationControllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 18),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -80,44 +113,49 @@ class _WeekDaySelectorState extends State<WeekDaySelector> {
           final isSelectable = dayIndex <= _currentDayIndex;
           final isSelected = entry.key == _selectedDay;
 
+          if (!isSelectable && _animationControllers[entry.key]!.value == 0) {
+            _animationControllers[entry.key]!.forward();
+          }
+
           return GestureDetector(
             onTap: isSelectable ? () => _selectDay(entry.key) : null,
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? const Color(0xFF86DBB2)
-                    : null,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    entry.key,
-                    style: TextStyle(
-                      color: isSelected
-                          ? Colors.black
-                          : isSelectable
-                          ? const Color(0xFF8F9098)
-                          : const Color(0xFF8F9098).withOpacity(0.4),
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
+            child: FadeTransition(
+              opacity: _opacityAnimations[entry.key]!,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? const Color(0xFF86DBB2)
+                      : null,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      entry.key,
+                      style: TextStyle(
+                        color: isSelected
+                            ? Colors.black
+                            : const Color(0xFF8F9098),
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    entry.value,
-                    style: TextStyle(
-                      color: isSelected
-                          ? Colors.black
-                          : isSelectable
-                          ? const Color(0xFF494A50)
-                          : const Color(0xFF494A50).withOpacity(0.4),
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
+                    const SizedBox(height: 4),
+                    Text(
+                      entry.value,
+                      style: TextStyle(
+                        color: isSelected
+                            ? Colors.black
+                            : const Color(0xFF494A50),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           );

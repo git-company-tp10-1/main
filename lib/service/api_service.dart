@@ -16,6 +16,8 @@ class ApiService {
   static const String goalsAI = '/goals/AI';
   static const String goalsDelete = '/goals/delete';
   static const String stepsEndpoint = '/steps/save';
+  static const String logoutEndpoint = '/auth/logout';
+
   static const String noteDelete = '/notes/delete';
 
   // Ключ для сохранения токена
@@ -87,15 +89,9 @@ class ApiService {
     final token = await getToken();
     List<String> timeParts = time.split(":");
     DateTime fullDateTime = DateTime(
-      DateTime
-          .now()
-          .year,
-      DateTime
-          .now()
-          .month,
-      DateTime
-          .now()
-          .day,
+      DateTime.now().year,
+      DateTime.now().month,
+      DateTime.now().day,
       int.parse(timeParts[0]),
       int.parse(timeParts[1]),
     );
@@ -248,7 +244,7 @@ class ApiService {
   Future<bool> sendSteps({
     required String day,
     required int steps,
-    required String date, // Этот параметр теперь будет использоваться
+    required String date,
   }) async {
     try {
       final token = await getToken();
@@ -295,7 +291,30 @@ class ApiService {
     }
   }
 
-  // Сохранение токена в SharedPreferences
+  Future<void> logout() async {
+    try {
+      final token = await getToken();
+      if (token == null) return;
+
+      final response = await http.post(
+        Uri.parse('$baseUrl$logoutEndpoint'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      await deleteToken();
+
+      if (response.statusCode != 200) {
+        throw Exception('Ошибка при выходе из системы');
+      }
+    } catch (e) {
+      await deleteToken();
+      throw Exception('Не удалось выйти: ${e.toString()}');
+    }
+  }
+
   Future<void> saveToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_tokenKey, token);

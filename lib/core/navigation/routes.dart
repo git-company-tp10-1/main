@@ -11,14 +11,14 @@ import '../../presentation/screens/statistics.dart';
 
 
 final Map<String, WidgetBuilder> appRoutes = {
-  '/': (context) => const MainScreen(),
+  '/': (context) => const MainScreen(username: '',),
   '/auth': (context) => const AuthorizeScreen(),
   '/registration': (context) => const RegistrationScreen(),
   '/permission': (context) => const PermissionsScreen(),
   '/pay': (context) => const PaymentScreen(),
   '/notes': (context) => const NotesScreen(selectedDay: '', token: '',),
   '/recovery': (context) => const PasswordRecoveryScreen(),
-  '/profile': (context) => const ProfileScreen(),
+  '/profile': (context) => const ProfileScreen(userEmail: '',),
   '/stats': (context) => const StatisticsScreen(selectedDay: '',),
 };
 
