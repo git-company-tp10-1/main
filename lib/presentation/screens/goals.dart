@@ -66,8 +66,8 @@ class _GoalsScreenState extends State<GoalsScreen> {
       final serverGoalsConverted = serverGoals.map((serverGoal) => Goal(
         title: utf8.decode(latin1.encode(serverGoal['content'] ?? 'Без названия')),
         cardColor: serverGoal['createdByUser'] == true
-            ? const Color(0xFF40CE9F) // Пользовательские цели
-            : const Color(0xFF86DBB2), // Системные цели
+            ? const Color(0xFF40CE9F)
+            : const Color(0xFF86DBB2),
         circleColor: serverGoal['createdByUser'] == true
             ? const Color(0xFFBBDDCC)
             : const Color(0xFF86DBB2),
@@ -99,6 +99,81 @@ class _GoalsScreenState extends State<GoalsScreen> {
     }
   }
 
+  Future<void> _deleteGoal(int index) async {
+    final goalToDelete = goals[index];
+    final confirmed = await _showDeleteConfirmationDialog(goalToDelete.title);
+
+    if (!confirmed) return;
+
+    try {
+      setState(() {
+        goals.removeAt(index);
+      });
+
+      await _saveGoalsLocally();
+
+      if (goalToDelete.isSynced) {
+        await widget._apiService.deleteGoal(goalToDelete.title);
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Цель "${goalToDelete.title}" удалена')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ошибка удаления: ${e.toString()}')),
+      );
+      setState(() {
+        goals.insert(index, goalToDelete);
+      });
+    }
+  }
+
+  Future<bool> _showDeleteConfirmationDialog(String goalTitle) async {
+    return await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Удалить цель?'),
+        content: Text('Вы уверены, что хотите удалить цель "$goalTitle"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Отмена'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            child: const Text('Удалить', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    ) ?? false;
+  }
+
+  Future<void> _generateAIGoals() async {
+    try {
+      setState(() {
+        _syncInProgress = true;
+      });
+
+      await widget._apiService.getGoalsAI();
+      await _syncWithServer();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Цели сгенерированы ИИ')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ошибка генерации целей: ${e.toString()}')),
+      );
+    } finally {
+      setState(() {
+        _syncInProgress = false;
+      });
+    }
+  }
 
   void _toggleGoalCompletion(int index) async {
     setState(() {
@@ -106,15 +181,13 @@ class _GoalsScreenState extends State<GoalsScreen> {
     });
     await _saveGoalsLocally();
 
-    // Для целей с сервера отправляем обновление на сервер
     if (goals[index].isSynced) {
       try {
-
+        // Здесь должен быть вызов API для обновления статуса
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Ошибка обновления статуса: ${e.toString()}')),
         );
-        // Откатываем изменение при ошибке
         setState(() {
           goals[index].isCompleted = !goals[index].isCompleted;
         });
@@ -130,10 +203,10 @@ class _GoalsScreenState extends State<GoalsScreen> {
           try {
             final newGoal = Goal(
               title: title,
-              cardColor: const Color(0xFF66CA9E), // Пользовательские цели - темнее
+              cardColor: const Color(0xFFAAE8CE),
               circleColor: const Color(0xFFCCF0ED),
               isSynced: false,
-              createdByUser: false, // Это пользовательская цель
+              createdByUser: false,
             );
 
             setState(() {
@@ -153,7 +226,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
   }
 
   void _editGoal(int index) {
-    if (goals[index].createdByUser) return; // Редактировать можно только пользовательские цели
+    if (goals[index].createdByUser) return;
 
     showDialog(
       context: context,
@@ -185,11 +258,36 @@ class _GoalsScreenState extends State<GoalsScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const SizedBox(height: 20),
-                  for (int i = 0; i < goals.length; i++)
-                    GestureDetector(
-                      onTap: () => _editGoal(i),
-                      child: _buildGoalCard(goals[i], i),
+                  if (goals.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        children: [
+                          const Text(
+                            'У вас пока нет целей',
+                            style: TextStyle(fontSize: 18),
+                          ),
+                          const SizedBox(height: 20),
+                          ElevatedButton(
+                            onPressed: _generateAIGoals,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF9EFFD0),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 24, vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                            ),
+                            child: const Text(
+                              'Сгенерировать цели ИИ',
+                              style: TextStyle(color: Colors.black),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
+                  for (int i = 0; i < goals.length; i++)
+                    _buildGoalCard(goals[i], i),
                   const SizedBox(height: 20),
                 ],
               ),
@@ -226,86 +324,105 @@ class _GoalsScreenState extends State<GoalsScreen> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _addNewGoal,
-        backgroundColor: const Color(0xFF9EFFD0),
-        child: const Icon(Icons.add, color: Colors.black),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          if (goals.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: FloatingActionButton.extended(
+                onPressed: _generateAIGoals,
+                backgroundColor: const Color(0xFF9EFFD0),
+                icon: const Icon(Icons.auto_awesome, color: Colors.black),
+                label: const Text('ИИ генерация(тест)', style: TextStyle(color: Colors.black)),
+              ),
+            ),
+          FloatingActionButton(
+            onPressed: _addNewGoal,
+            backgroundColor: const Color(0xFF9EFFD0),
+            child: const Icon(Icons.add, color: Colors.black),
+          ),
+        ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
   Widget _buildGoalCard(Goal goal, int index) {
-    return Container(
-      width: MediaQuery.of(context).size.width * 0.9,
-      height: goal.createdByUser ? 96 : 80,
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      decoration: ShapeDecoration(
-        color: goal.cardColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
+    return GestureDetector(
+      onLongPress: () => _deleteGoal(index),
+      onTap: () => _editGoal(index),
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.9,
+        height: goal.createdByUser ? 96 : 80,
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        decoration: ShapeDecoration(
+          color: goal.cardColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
         ),
-      ),
-      child: Stack(
-        children: [
-          Positioned(
-            left: 20,
-            top: 20,
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width * 0.7,
-              child: Text(
-                goal.title,
-                style: const TextStyle(
-                  color: Color(0xFF1F2024),
-                  fontSize: 18,
-                  fontFamily: 'Crimson Text',
-                  fontWeight: FontWeight.w400,
-                  height: 1.11,
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            right: 20,
-            top: goal.createdByUser ? 32 : 25,
-            child: GestureDetector(
-              onTap: () => _toggleGoalCompletion(index),
-              child: Container(
-                width: 30,
-                height: 30,
-                decoration: ShapeDecoration(
-                  color: goal.isCompleted
-                      ? const Color(0xFF33322E)
-                      : goal.circleColor,
-                  shape: const OvalBorder(
-                    side: BorderSide(
-                      width: 3,
-                      color: Color(0xFF33322E),
-                    ),
-                  ),
-                ),
-                child: goal.isCompleted
-                    ? const Icon(Icons.check, color: Colors.white, size: 18)
-                    : null,
-              ),
-            ),
-          ),
-          if (goal.createdByUser)
+        child: Stack(
+          children: [
             Positioned(
               left: 20,
-              bottom: 16,
-              child: Text(
-                'Сгенерировано на основе ваших действий',
-                style: TextStyle(
-                  color: const Color(0xFF494949),
-                  fontSize: 12,
-                  fontFamily: 'Crimson Text',
-                  fontWeight: FontWeight.w400,
-                  height: 2,
+              top: 20,
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.7,
+                child: Text(
+                  goal.title,
+                  style: const TextStyle(
+                    color: Color(0xFF1F2024),
+                    fontSize: 18,
+                    fontFamily: 'Crimson Text',
+                    fontWeight: FontWeight.w400,
+                    height: 1.11,
+                  ),
                 ),
               ),
             ),
-        ],
+            Positioned(
+              right: 20,
+              top: goal.createdByUser ? 32 : 25,
+              child: GestureDetector(
+                onTap: () => _toggleGoalCompletion(index),
+                child: Container(
+                  width: 30,
+                  height: 30,
+                  decoration: ShapeDecoration(
+                    color: goal.isCompleted
+                        ? const Color(0xFF33322E)
+                        : goal.circleColor,
+                    shape: const OvalBorder(
+                      side: BorderSide(
+                        width: 3,
+                        color: Color(0xFF33322E),
+                      ),
+                    ),
+                  ),
+                  child: goal.isCompleted
+                      ? const Icon(Icons.check, color: Colors.white, size: 18)
+                      : null,
+                ),
+              ),
+            ),
+            if (goal.createdByUser)
+              Positioned(
+                left: 20,
+                bottom: 16,
+                child: Text(
+                  'Сгенерировано на основе ваших действий',
+                  style: TextStyle(
+                    color: const Color(0xFF494949),
+                    fontSize: 12,
+                    fontFamily: 'Crimson Text',
+                    fontWeight: FontWeight.w400,
+                    height: 2,
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

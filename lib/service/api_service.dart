@@ -12,7 +12,9 @@ class ApiService {
   static const String registerEndpoint = '/auth/register';
   static const String loginEndpoint = '/auth/login';
   static const String notesEndpoint = '/notes/save';
-  static const String goals_SaveEndpoint = '/goals/save';
+  static const String goals_saveEndpoint = '/goals/save';
+  static const String goalsAI = '/goals/AI';
+  static const String goalsDelete = '/goals/delete';
   static const String stepsEndpoint = '/steps/save';
   // Ключ для сохранения токена
   static const String _tokenKey = 'auth_token';
@@ -114,7 +116,7 @@ class ApiService {
   Future<String> goalsSave(String title, bool isGenerate) async {
     final token = await getToken();
     final response = await http.post(
-      Uri.parse('$baseUrl$goals_SaveEndpoint'),
+      Uri.parse('$baseUrl$goals_saveEndpoint'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
@@ -132,7 +134,25 @@ class ApiService {
       throw Exception('Failed to create note');
     }
   }
+  Future<void> deleteGoal(String title) async {
+    final token = await getToken();
+    final response = await http.post(
+      Uri.parse('$baseUrl$goalsDelete'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        "content": title,
+      }),
+    );
 
+    if (response.statusCode == 200) {
+
+    } else {
+      throw Exception('Failed to create note');
+    }
+  }
   Future<List<dynamic>> getGoals() async {
     try {
       final token = await getToken();
@@ -147,6 +167,25 @@ class ApiService {
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         return data;
+      } else {
+        throw Exception('Failed to load goals: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to fetch goals: $e');
+    }
+  }
+  Future<void> getGoalsAI() async {
+    try {
+      final token = await getToken();
+      final response = await client.get(
+        Uri.parse('$baseUrl$goalsAI'), // Замените на ваш реальный URL
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+
       } else {
         throw Exception('Failed to load goals: ${response.statusCode}');
       }
