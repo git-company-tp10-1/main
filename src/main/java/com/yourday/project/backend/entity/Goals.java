@@ -32,7 +32,7 @@ public class Goals {
     private String content;
 
     @Column(name = "Created_by", nullable = false)
-    private Boolean createdByUser = true; // true - создано пользователем, false - системой/тренером
+    private Boolean createdByUser = false; // true - системой , false - создано пользователем
 
     @Enumerated(EnumType.STRING)
     @Column(name = "Status", nullable = false, length = 255)

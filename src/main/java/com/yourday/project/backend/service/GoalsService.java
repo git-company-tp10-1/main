@@ -45,7 +45,7 @@ public class GoalsService {
                     Goals goal = new Goals();
                     goal.setContent(content);
                     goal.setUser(user);
-                    goal.setCreatedByUser(false);
+                    goal.setCreatedByUser(true);
                     goal.setStatus(Goals.GoalStatus.ACTIVE);
                     goalsRepository.save(goal);
                 });
@@ -53,7 +53,7 @@ public class GoalsService {
 
 
     public List<Goals> findAllGoalsAiByUserId(UUID userId) {
-        return goalsRepository.findByUserIdAndCreatedByUserFalse(userId.toString());
+        return goalsRepository.findByUserIdAndCreatedByUserTrue(userId.toString());
     }
 
 
