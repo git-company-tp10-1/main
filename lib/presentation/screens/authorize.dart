@@ -3,7 +3,6 @@ import 'package:project/presentation/screens/registration.dart';
 import 'main_screen.dart';
 import '../../service/api_service.dart';
 
-
 class AuthorizeScreen extends StatefulWidget {
   const AuthorizeScreen({super.key});
 
@@ -20,6 +19,11 @@ class _AuthorizeScreenState extends State<AuthorizeScreen> {
   final ApiService _apiService = ApiService();
 
   final String logoPath = 'assets/images/logo.png';
+
+  // Метод для извлечения имени из email
+  String _getUsernameFromEmail(String email) {
+    return email.split('@').first;
+  }
 
   String? _validateEmail(String? value) {
     if (value == null || value.isEmpty) {
@@ -117,10 +121,17 @@ class _AuthorizeScreenState extends State<AuthorizeScreen> {
       );
 
       if (!mounted) return;
+
+      // Извлекаем имя пользователя из email
+      final username = _getUsernameFromEmail(_emailController.text);
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => const MainScreen(isGuest: false),
+          builder: (context) => MainScreen(
+            isGuest: false,
+            username: username, // Передаем имя пользователя
+          ),
         ),
       );
     } catch (e) {
@@ -136,7 +147,6 @@ class _AuthorizeScreenState extends State<AuthorizeScreen> {
     }
   }
 
-  // Метод для перехода на экран регистрации
   void _navigateToRegistration() {
     Navigator.push(
       context,
@@ -200,7 +210,6 @@ class _AuthorizeScreenState extends State<AuthorizeScreen> {
                   style: TextStyle(fontSize: 14, color: Colors.black),
                 ),
                 const SizedBox(height: 30),
-
                 TextFormField(
                   controller: _emailController,
                   style: const TextStyle(color: Colors.black),
@@ -210,7 +219,6 @@ class _AuthorizeScreenState extends State<AuthorizeScreen> {
                   validator: _validateEmail,
                 ),
                 const SizedBox(height: 16),
-
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
@@ -232,24 +240,22 @@ class _AuthorizeScreenState extends State<AuthorizeScreen> {
                   onFieldSubmitted: (_) => _login(),
                 ),
                 const SizedBox(height: 30),
-
                 _authButton('Войти', const Color(0xFF86DBB2), _login),
                 const SizedBox(height: 16),
-
-                // Обновленная кнопка регистрации с навигацией
                 _outlinedButton('Регистрация', _navigateToRegistration),
                 const SizedBox(height: 16),
-
                 _authButton('Войти как гость', const Color(0xFFF5F2F2), () {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const MainScreen(isGuest: true),
+                      builder: (context) => const MainScreen(
+                        isGuest: true,
+                        username: 'Гость',
+                      ),
                     ),
                   );
                 }),
                 const SizedBox(height: 20),
-
                 TextButton(
                   onPressed: () {},
                   child: const Text(

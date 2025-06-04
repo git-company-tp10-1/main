@@ -13,7 +13,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
-  final _nameController = TextEditingController(); // Контроллер для имени
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -27,11 +27,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     ).hasMatch(email);
   }
 
-  // Валидация имени
+  // Измененная валидация имени - теперь необязательное поле
   String? _validateName(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Введите имя';
-    } else if (value.length < 2) {
+    if (value != null && value.isNotEmpty && value.length < 2) {
       return 'Имя должно быть не менее 2 символов';
     }
     return null;
@@ -55,15 +53,18 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   Future<void> _handleRegistration() async {
     if (_isLoading) return;
-
     if (_formKey.currentState?.validate() != true) return;
 
     setState(() => _isLoading = true);
 
     try {
-      // Здесь должен быть вызов API для регистрации
+      // Получаем имя: если пользователь не ввел, берем часть email до @
+      final username = _nameController.text.trim().isNotEmpty
+          ? _nameController.text.trim()
+          : _emailController.text.split('@').first;
+
       await _apiService.register(
-        _nameController.text,
+        username,
         _emailController.text,
         _passwordController.text,
       );
@@ -72,7 +73,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => const MainScreen(isGuest: false),
+          builder: (context) => MainScreen(
+            isGuest: false,
+            username: username, // Передаем имя пользователя
+          ),
         ),
       );
     } catch (e) {
@@ -201,18 +205,18 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 ),
                 const SizedBox(height: 30),
 
-                // Поле для имени
+                // Поле для имени (теперь необязательное)
                 TextFormField(
                   controller: _nameController,
                   style: const TextStyle(color: Colors.black),
-                  decoration: _inputDecoration('Ваше имя'),
+                  decoration: _inputDecoration('Имя (необязательно)'),
                   keyboardType: TextInputType.name,
                   textInputAction: TextInputAction.next,
                   validator: _validateName,
                 ),
                 const SizedBox(height: 16),
 
-                // Поле для email
+                // Остальные поля без изменений
                 TextFormField(
                   controller: _emailController,
                   style: const TextStyle(color: Colors.black),
@@ -230,7 +234,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // Поле для пароля
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
@@ -254,7 +257,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // Поле для подтверждения пароля
                 TextFormField(
                   controller: _confirmPasswordController,
                   obscureText: _obscureConfirmPassword,
@@ -274,7 +276,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 ),
                 const SizedBox(height: 30),
 
-                // Кнопка регистрации
                 _authButton(
                   'Зарегистрироваться',
                   const Color(0xFF86DBB2),
@@ -282,9 +283,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // Кнопка "Уже есть аккаунт"
                 _outlinedButton('Уже есть аккаунт', () {
-                  Navigator.pop(context); // Возврат на экран авторизации
+                  Navigator.pop(context);
                 }),
                 const SizedBox(height: 20),
               ],

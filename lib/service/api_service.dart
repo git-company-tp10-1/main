@@ -14,6 +14,8 @@ class ApiService {
   static const String notesEndpoint = '/notes/save';
   static const String goals_SaveEndpoint = '/goals/save';
   static const String stepsEndpoint = '/steps/save';
+  static const String logoutEndpoint = '/auth/logout';
+
   // Ключ для сохранения токена
   static const String _tokenKey = 'auth_token';
 
@@ -158,7 +160,7 @@ class ApiService {
   Future<bool> sendSteps({
     required String day,
     required int steps,
-    required String date, // Этот параметр теперь будет использоваться
+    required String date,
   }) async {
     try {
       final token = await getToken();
@@ -166,14 +168,11 @@ class ApiService {
         throw Exception('Пользователь не авторизован');
       }
 
-      // Проверяем и форматируем дату
       String formattedDate;
       try {
-        // Пытаемся распарсить входную дату (если она уже в правильном формате, оставляем как есть)
         final parsedDate = DateTime.parse(date);
         formattedDate = DateFormat('yyyy-MM-dd').format(parsedDate);
       } catch (e) {
-        // Если дата в неправильном формате, используем текущую дату
         formattedDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
         print('Некорректный формат даты: $date. Используется текущая дата: $formattedDate');
       }
@@ -203,19 +202,40 @@ class ApiService {
     }
   }
 
-  // Сохранение токена в SharedPreferences
+  Future<void> logout() async {
+    try {
+      final token = await getToken();
+      if (token == null) return;
+
+      final response = await http.post(
+        Uri.parse('$baseUrl$logoutEndpoint'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      await deleteToken();
+
+      if (response.statusCode != 200) {
+        throw Exception('Ошибка при выходе из системы');
+      }
+    } catch (e) {
+      await deleteToken();
+      throw Exception('Не удалось выйти: ${e.toString()}');
+    }
+  }
+
   Future<void> saveToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_tokenKey, token);
   }
 
-  // Получение сохраненного токена из SharedPreferences
   Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_tokenKey);
   }
 
-  // Удаление токена (для выхода из системы)
   Future<void> deleteToken() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_tokenKey);
