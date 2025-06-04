@@ -39,14 +39,27 @@ class _NotesScreenState extends State<NotesScreen> {
 
   bool get _isToday => widget.selectedDay == _currentDayAbbreviation;
 
+  // Метод для сравнения времени в формате "HH:MM"
+  int _compareTime(String a, String b) {
+    final timeA = a.split(':');
+    final timeB = b.split(':');
+    final hourA = int.parse(timeA[0]);
+    final minuteA = int.parse(timeA[1]);
+    final hourB = int.parse(timeB[0]);
+    final minuteB = int.parse(timeB[1]);
+
+    if (hourA != hourB) {
+      return hourA.compareTo(hourB);
+    } else {
+      return minuteA.compareTo(minuteB);
+    }
+  }
+
   Future<void> _loadNotes() async {
     setState(() => _isLoading = true);
     try {
-      // Сначала пробуем загрузить с сервера
-      // Здесь можно добавить загрузку с сервера
-
-      // Затем загружаем из локального хранилища
       final localNotes = await _storageService.loadNotes();
+      localNotes.sort((a, b) => _compareTime(a.time, b.time));
       setState(() => _notes = localNotes);
     } finally {
       setState(() => _isLoading = false);
@@ -63,18 +76,15 @@ class _NotesScreenState extends State<NotesScreen> {
 
     setState(() => _isLoading = true);
     try {
-      // Отправляем на сервер
       await _apiService.notes(
         newNote.time,
         newNote.title,
         newNote.content,
       );
 
-      // Добавляем в локальный список
       final updatedNotes = [..._notes, newNote];
+      updatedNotes.sort((a, b) => _compareTime(a.time, b.time));
       setState(() => _notes = updatedNotes);
-
-      // Сохраняем в локальное хранилище
       await _storageService.saveNotes(updatedNotes);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -106,14 +116,11 @@ class _NotesScreenState extends State<NotesScreen> {
 
     setState(() => _isLoading = true);
     try {
-      // Удаляем с сервера
       await _apiService.deleteNote(note.time);
 
-      // Удаляем из локального списка
       final updatedNotes = _notes.where((n) => n.time != note.time).toList();
+      updatedNotes.sort((a, b) => _compareTime(a.time, b.time));
       setState(() => _notes = updatedNotes);
-
-      // Сохраняем в локальное хранилище
       await _storageService.saveNotes(updatedNotes);
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -153,7 +160,6 @@ class _NotesScreenState extends State<NotesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Фильтруем заметки по выбранному дню
     final filteredNotes = _notes.where((note) => note.day == widget.selectedDay).toList();
 
     return Scaffold(
