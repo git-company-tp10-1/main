@@ -17,6 +17,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 2;
   String _selectedDay = 'ПН';
+  final PageController _pageController = PageController(initialPage: 2);
 
   String _getAppBarTitle() {
     switch (_currentIndex) {
@@ -34,6 +35,12 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -45,8 +52,10 @@ class _MainScreenState extends State<MainScreen> {
             fontWeight: FontWeight.w400,
           ),
         ),
-        centerTitle: false, // Текст будет слева
+        centerTitle: false,
         elevation: 0,
+        scrolledUnderElevation: 0,
+        automaticallyImplyLeading: false,
       ),
       body: Column(
         children: [
@@ -58,27 +67,33 @@ class _MainScreenState extends State<MainScreen> {
                 initialDay: _selectedDay,
               ),
             ),
-          Expanded(child: _buildCurrentScreen()),
+          Expanded(
+            child: PageView(
+              controller: _pageController,
+              onPageChanged: (index) {
+                if (widget.isGuest && index != 2) {
+                  _pageController.animateToPage(
+                    2,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.ease,
+                  );
+                  _showGuestRestrictionDialog();
+                  return;
+                }
+                setState(() => _currentIndex = index);
+              },
+              children: [
+                GoalsScreen(),
+                NotesScreen(selectedDay: _selectedDay, token: ''),
+                StatisticsScreen(selectedDay: _selectedDay),
+                const ProfileScreen(),
+              ],
+            ),
+          ),
         ],
       ),
       bottomNavigationBar: _buildBottomNavBar(),
     );
-  }
-
-  // Остальной код остается без изменений
-  Widget _buildCurrentScreen() {
-    switch (_currentIndex) {
-      case 0:
-        return const GoalsScreen();
-      case 1:
-        return NotesScreen(selectedDay: _selectedDay, token: '',);
-      case 2:
-        return StatisticsScreen(selectedDay: _selectedDay);
-      case 3:
-        return const ProfileScreen();
-      default:
-        return StatisticsScreen(selectedDay: _selectedDay);
-    }
   }
 
   void _onTabTapped(int index) {
@@ -87,6 +102,11 @@ class _MainScreenState extends State<MainScreen> {
       return;
     }
     setState(() => _currentIndex = index);
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.ease,
+    );
   }
 
   void _showGuestRestrictionDialog() {

@@ -1,93 +1,171 @@
 import 'package:flutter/material.dart';
-
-class Goal {
-  String title;
-  final Color cardColor;
-  final Color circleColor;
-  final bool isGenerated;
-  bool isCompleted;
-
-  Goal({
-    required this.title,
-    required this.cardColor,
-    required this.circleColor,
-    this.isGenerated = false,
-    this.isCompleted = false,
-  });
-}
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+import '../../service/api_service.dart';
 
 class GoalsScreen extends StatefulWidget {
-  const GoalsScreen({super.key});
+  final ApiService _apiService = ApiService();
+
+  GoalsScreen({super.key});
 
   @override
   State<GoalsScreen> createState() => _GoalsScreenState();
 }
 
 class _GoalsScreenState extends State<GoalsScreen> {
-  final List<Goal> goals = [
-    Goal(
-      title: 'Пройти 10000 шагов',
-      cardColor: const Color(0xFF40CD9E),
-      circleColor: const Color(0xFFCFF4F0),
-      isGenerated: true,
-    ),
-    Goal(
-      title: 'Выпить 1 л воды',
-      cardColor: const Color(0xFFBBDDCC),
-      circleColor: const Color(0xFF8CD4CB),
-    ),
-    Goal(
-      title: '30 минут без телефона',
-      cardColor: const Color(0xFF86DBB2),
-      circleColor: const Color(0xFFCFF4F0),
-    ),
-    Goal(
-      title: 'Сходить на прогулку',
-      cardColor: const Color(0xFFBBDDCC),
-      circleColor: const Color(0xFF8CD4CB),
-      isGenerated: true,
-    ),
-    Goal(
-      title: 'Встать в 6 утра',
-      cardColor: const Color(0xFF86DBB2),
-      circleColor: const Color(0xFFCFF4F0),
-    ),
-  ];
+  List<Goal> goals = [];
+  bool _isLoading = true;
+  bool _syncInProgress = false;
 
-  void _toggleGoalCompletion(int index) {
+  @override
+  void initState() {
+    super.initState();
+    _loadGoals();
+  }
+
+  Future<void> _loadGoals() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final String? goalsJson = prefs.getString('goals');
+
+      if (goalsJson != null) {
+        final List<dynamic> decoded = json.decode(goalsJson);
+        setState(() {
+          goals = decoded.map((e) => Goal.fromJson(e)).toList();
+        });
+      }
+
+      await _syncWithServer();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ошибка загрузки целей: ${e.toString()}')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _saveGoalsLocally() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String encoded = json.encode(goals.map((e) => e.toJson()).toList());
+    await prefs.setString('goals', encoded);
+  }
+
+  Future<void> _syncWithServer() async {
+    if (_syncInProgress) return;
+
+    setState(() {
+      _syncInProgress = true;
+    });
+
+    try {
+      final serverGoals = await widget._apiService.getGoals();
+
+      final serverGoalsConverted = serverGoals.map((serverGoal) => Goal(
+        title: utf8.decode(latin1.encode(serverGoal['content'] ?? 'Без названия')),
+        cardColor: serverGoal['createdByUser'] == true
+            ? const Color(0xFF40CE9F) // Пользовательские цели
+            : const Color(0xFF86DBB2), // Системные цели
+        circleColor: serverGoal['createdByUser'] == true
+            ? const Color(0xFFBBDDCC)
+            : const Color(0xFF86DBB2),
+        createdByUser: serverGoal['createdByUser'] == true,
+        isCompleted: serverGoal['status'] != 'ACTIVE',
+        isSynced: true,
+      )).toList();
+
+      setState(() {
+        goals = [
+          ...serverGoalsConverted,
+          ...goals.where((localGoal) =>
+          localGoal.isSynced == false ||
+              !serverGoalsConverted.any((serverGoal) =>
+              serverGoal.title == localGoal.title))
+        ];
+      });
+
+      await _saveGoalsLocally();
+    } catch (e) {
+      debugPrint('Ошибка синхронизации: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ошибка загрузки целей: ${e.toString()}')),
+      );
+    } finally {
+      setState(() {
+        _syncInProgress = false;
+      });
+    }
+  }
+
+
+  void _toggleGoalCompletion(int index) async {
     setState(() {
       goals[index].isCompleted = !goals[index].isCompleted;
     });
+    await _saveGoalsLocally();
+
+    // Для целей с сервера отправляем обновление на сервер
+    if (goals[index].isSynced) {
+      try {
+
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка обновления статуса: ${e.toString()}')),
+        );
+        // Откатываем изменение при ошибке
+        setState(() {
+          goals[index].isCompleted = !goals[index].isCompleted;
+        });
+      }
+    }
   }
 
   void _addNewGoal() {
     showDialog(
       context: context,
       builder: (context) => GoalEditDialog(
-        onSave: (title) {
-          setState(() {
-            goals.insert(
-                0,
-                Goal(
-                  title: title,
-                  cardColor: const Color(0xFF9EFFD0),
-                  circleColor: const Color(0xFFCFF4F0),
-                ));
-          });
+        onSave: (title) async {
+          try {
+            final newGoal = Goal(
+              title: title,
+              cardColor: const Color(0xFF66CA9E), // Пользовательские цели - темнее
+              circleColor: const Color(0xFFCCF0ED),
+              isSynced: false,
+              createdByUser: false, // Это пользовательская цель
+            );
+
+            setState(() {
+              goals.insert(0, newGoal);
+            });
+
+            await _saveGoalsLocally();
+            await _syncWithServer();
+          } catch (e) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Ошибка сохранения цели: ${e.toString()}')),
+            );
+          }
         },
       ),
     );
   }
 
   void _editGoal(int index) {
+    if (goals[index].createdByUser) return; // Редактировать можно только пользовательские цели
+
     showDialog(
       context: context,
       builder: (context) => GoalEditDialog(
         initialText: goals[index].title,
-        onSave: (newTitle) {
+        onSave: (newTitle) async {
           setState(() {
             goals[index].title = newTitle;
+            goals[index].isSynced = false;
           });
+          await _saveGoalsLocally();
+          await _syncWithServer();
         },
       ),
     );
@@ -96,24 +174,16 @@ class _GoalsScreenState extends State<GoalsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFEFEFEF),
-      body: Center(
+      backgroundColor: const Color(0xFFEDEDEE),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Center(
         child: Stack(
           children: [
             SingleChildScrollView(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 60),
-                  const Text(
-                    'Цели',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 24,
-                      fontFamily: 'Ledger',
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
                   const SizedBox(height: 20),
                   for (int i = 0; i < goals.length; i++)
                     GestureDetector(
@@ -124,6 +194,35 @@ class _GoalsScreenState extends State<GoalsScreen> {
                 ],
               ),
             ),
+            if (_syncInProgress)
+              Positioned(
+                bottom: 20,
+                right: 20,
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.7),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Row(
+                    children: [
+                      SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      Text(
+                        'Синхронизация...',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -138,8 +237,8 @@ class _GoalsScreenState extends State<GoalsScreen> {
 
   Widget _buildGoalCard(Goal goal, int index) {
     return Container(
-      width: 302,
-      height: goal.isGenerated ? 96 : 66,
+      width: MediaQuery.of(context).size.width * 0.9,
+      height: goal.createdByUser ? 96 : 80,
       margin: const EdgeInsets.symmetric(vertical: 8),
       decoration: ShapeDecoration(
         color: goal.cardColor,
@@ -150,10 +249,10 @@ class _GoalsScreenState extends State<GoalsScreen> {
       child: Stack(
         children: [
           Positioned(
-            left: 16,
-            top: 16,
+            left: 20,
+            top: 20,
             child: SizedBox(
-              width: 230,
+              width: MediaQuery.of(context).size.width * 0.7,
               child: Text(
                 goal.title,
                 style: const TextStyle(
@@ -167,8 +266,8 @@ class _GoalsScreenState extends State<GoalsScreen> {
             ),
           ),
           Positioned(
-            right: 16,
-            top: goal.isGenerated ? 32 : 16,
+            right: 20,
+            top: goal.createdByUser ? 32 : 25,
             child: GestureDetector(
               onTap: () => _toggleGoalCompletion(index),
               child: Container(
@@ -191,9 +290,9 @@ class _GoalsScreenState extends State<GoalsScreen> {
               ),
             ),
           ),
-          if (goal.isGenerated)
+          if (goal.createdByUser)
             Positioned(
-              left: 16,
+              left: 20,
               bottom: 16,
               child: Text(
                 'Сгенерировано на основе ваших действий',
@@ -244,8 +343,7 @@ class _GoalEditDialogState extends State<GoalEditDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title:
-      Text(widget.initialText == null ? 'Новая цель' : 'Редактировать цель'),
+      title: Text(widget.initialText == null ? 'Новая цель' : 'Редактировать цель'),
       content: TextField(
         controller: _controller,
         decoration: const InputDecoration(
@@ -272,5 +370,45 @@ class _GoalEditDialogState extends State<GoalEditDialog> {
         ),
       ],
     );
+  }
+}
+
+class Goal {
+  String title;
+  final Color cardColor;
+  final Color circleColor;
+  final bool createdByUser;
+  bool isCompleted;
+  bool isSynced;
+
+  Goal({
+    required this.title,
+    required this.cardColor,
+    required this.circleColor,
+    required this.createdByUser,
+    this.isCompleted = false,
+    this.isSynced = true,
+  });
+
+  factory Goal.fromJson(Map<String, dynamic> json) {
+    return Goal(
+      title: json['title'],
+      cardColor: Color(json['cardColor']),
+      circleColor: Color(json['circleColor']),
+      createdByUser: json['createdByUser'],
+      isCompleted: json['isCompleted'] ?? false,
+      isSynced: json['isSynced'] ?? true,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'title': title,
+      'cardColor': cardColor.value,
+      'circleColor': circleColor.value,
+      'createdByUser': createdByUser,
+      'isCompleted': isCompleted,
+      'isSynced': isSynced,
+    };
   }
 }
